@@ -64,6 +64,19 @@
             margin-bottom: 20px;
         }
 
+        .filter-toggle-button {
+            display: none;
+            width: 100%;
+            margin-bottom: 10px;
+            border: 0;
+            border-radius: 8px;
+            padding: 10px 12px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            cursor: pointer;
+            font-weight: 800;
+        }
+
         .filter-group label {
             display: block;
             font-size: 0.9em;
@@ -83,6 +96,7 @@
         /* 테이블 영역 */
         .table-wrapper {
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         table {
@@ -713,6 +727,33 @@
         }
 
         @media (max-width: 640px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 14px;
+            }
+
+            .filter-toggle-button {
+                display: block;
+            }
+
+            .filter-section {
+                display: none;
+                grid-template-columns: 1fr;
+                gap: 10px;
+                padding: 12px;
+            }
+
+            .filter-section.open {
+                display: grid;
+            }
+
+            #companyTable {
+                min-width: 1180px;
+            }
+
             .detail-body {
                 grid-template-columns: 1fr;
             }
@@ -768,6 +809,7 @@
     </div>
 
     <!-- 필터 및 검색 -->
+    <button class="filter-toggle-button" id="filterToggleButton" type="button" onclick="toggleFilterPanel()" aria-expanded="false">필터링</button>
     <div class="filter-section">
         <div class="filter-group">
             <label>회사명 검색</label>
@@ -978,6 +1020,16 @@
     function toggleAiCompanyPanel() {
         if (!hasAdminPermission()) return;
         document.getElementById('aiCompanyPanel').classList.toggle('hidden');
+    }
+
+    function toggleFilterPanel() {
+        const filterSection = document.querySelector('.filter-section');
+        const button = document.getElementById('filterToggleButton');
+        const isOpen = filterSection?.classList.toggle('open');
+        if (button) {
+            button.setAttribute('aria-expanded', String(Boolean(isOpen)));
+            button.textContent = isOpen ? '필터링 닫기' : '필터링';
+        }
     }
 
     async function loadCompanies() {
