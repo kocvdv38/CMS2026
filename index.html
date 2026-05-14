@@ -51,6 +51,7 @@
         .dashboard-title {
             cursor: pointer;
             user-select: none;
+            font-size: calc(1.5em - 3px);
         }
 
         /* 필터 영역 */
@@ -97,6 +98,12 @@
         .table-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            cursor: grab;
+        }
+
+        .table-wrapper.dragging {
+            cursor: grabbing;
+            user-select: none;
         }
 
         table {
@@ -204,6 +211,31 @@
         #companyTable th:nth-child(15),
         #companyTable td:nth-child(15) {
             width: 50px;
+        }
+
+        @media (min-width: 641px) {
+            #companyTable.row-editing {
+                width: 908px;
+            }
+
+            #companyTable.row-editing th:nth-child(6),
+            #companyTable.row-editing td:nth-child(6),
+            #companyTable.row-editing th:nth-child(10),
+            #companyTable.row-editing td:nth-child(10),
+            #companyTable.row-editing th:nth-child(13),
+            #companyTable.row-editing td:nth-child(13) {
+                width: 48px;
+            }
+
+            #companyTable.row-editing th:nth-child(11),
+            #companyTable.row-editing td:nth-child(11) {
+                width: 60px;
+            }
+
+            #companyTable.row-editing th:nth-child(12),
+            #companyTable.row-editing td:nth-child(12) {
+                width: 84px;
+            }
         }
 
         .series-lines {
@@ -434,22 +466,24 @@
 
         .cell-edit-checks {
             display: flex;
-            gap: 8px;
+            flex-direction: column;
+            gap: 3px;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-width: 0;
-            height: 36px;
-            padding: 0 6px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background: #fff;
+            min-height: 36px;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
         }
 
         .cell-edit-checks label {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
             white-space: nowrap;
+            line-height: 1.1;
         }
 
         .cell-edit-checks input {
@@ -737,11 +771,14 @@
         }
 
         .inline-detail-field-body {
-            min-height: 28px;
+            height: var(--inline-detail-body-height, 38px);
+            min-height: 38px;
             padding: 5px 7px;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             background: #fff;
+            box-sizing: border-box;
+            overflow: hidden;
         }
 
         .inline-detail-field.full {
@@ -791,34 +828,42 @@
 
         .inline-detail-field input,
         .inline-detail-field textarea {
-            height: 28px;
-            min-height: 28px;
+            height: 100%;
+            min-height: 100%;
             padding: 4px 7px;
             font-size: 0.85em;
             line-height: 1.25;
             background: #fff;
+            resize: none;
         }
 
         .inline-detail-readonly {
             display: block;
-            min-height: 16px;
+            height: 100%;
+            min-height: 100%;
             padding: 0;
             border: 0;
             background: transparent;
             color: #334155;
             font-size: 0.85em;
             line-height: 1.35;
+            overflow: hidden;
             white-space: pre-wrap;
         }
 
+        .inline-detail-field-body.notes-scroll textarea,
+        .inline-detail-field-body.notes-scroll .inline-detail-readonly {
+            overflow-y: auto;
+        }
+
         .inline-detail-field textarea[data-detail-field="documents"] {
-            height: 30px;
-            min-height: 30px;
+            height: 100%;
+            min-height: 100%;
         }
 
         .inline-detail-field textarea[data-detail-field="notes"] {
-            height: 42px;
-            min-height: 42px;
+            height: 100%;
+            min-height: 100%;
         }
 
         .inline-detail-actions {
@@ -884,6 +929,24 @@
             .inline-detail-header {
                 align-items: flex-start;
                 flex-direction: column;
+            }
+
+            .inline-detail-title-group {
+                flex: none;
+                width: 100%;
+            }
+
+            .inline-detail-header-actions {
+                flex: none;
+                justify-content: flex-start;
+                width: 100%;
+            }
+
+            .inline-detail-field-body {
+                height: auto;
+                min-height: 38px;
+                --inline-detail-body-height: auto;
+                overflow: visible;
             }
         }
     </style>
@@ -1051,13 +1114,53 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('dashboardTitle')?.addEventListener('click', handleAdminTitleClick);
+        initTableDragScroll();
         applyAdminMode();
         loadCompanies();
         window.addEventListener('resize', () => {
             fitCompanyNameButtons();
             document.querySelectorAll('#companyTable tbody tr.deadline-expired').forEach(updateExpiredOverlayWidth);
+            document.querySelectorAll('.company-detail-row').forEach(syncInlineDetailFieldHeights);
         });
     });
+
+    function initTableDragScroll() {
+        const wrapper = document.querySelector('.table-wrapper');
+        if (!wrapper) return;
+        const interactiveSelector = 'a, button, input, textarea, select, label, [contenteditable="true"]';
+        let isDragging = false;
+        let pointerId = null;
+        let startX = 0;
+        let startScrollLeft = 0;
+
+        wrapper.addEventListener('pointerdown', (event) => {
+            if (event.button !== 0 || event.target.closest(interactiveSelector)) return;
+            if (wrapper.scrollWidth <= wrapper.clientWidth) return;
+            isDragging = true;
+            pointerId = event.pointerId;
+            startX = event.clientX;
+            startScrollLeft = wrapper.scrollLeft;
+            wrapper.classList.add('dragging');
+            wrapper.setPointerCapture?.(pointerId);
+        });
+
+        wrapper.addEventListener('pointermove', (event) => {
+            if (!isDragging || event.pointerId !== pointerId) return;
+            wrapper.scrollLeft = startScrollLeft - (event.clientX - startX);
+            event.preventDefault();
+        });
+
+        const stopDragging = (event) => {
+            if (!isDragging || event.pointerId !== pointerId) return;
+            isDragging = false;
+            wrapper.classList.remove('dragging');
+            wrapper.releasePointerCapture?.(pointerId);
+            pointerId = null;
+        };
+
+        wrapper.addEventListener('pointerup', stopDragging);
+        wrapper.addEventListener('pointercancel', stopDragging);
+    }
 
     function handleAdminTitleClick() {
         const now = Date.now();
@@ -1534,6 +1637,7 @@
 
     function renderCompanyRows(rows) {
         const tbody = document.querySelector('#companyTable tbody');
+        document.getElementById('companyTable')?.classList.remove('row-editing');
         tbody.innerHTML = '';
         rows = rows.map(normalizeCompanyRow);
         updateFilterOptions(rows);
@@ -1790,6 +1894,7 @@
 
     function enterCompanyRowEditMode(tr) {
         const current = getCompanyRowData(tr);
+        document.getElementById('companyTable')?.classList.add('row-editing');
         tr.dataset.editing = 'true';
         tr.dataset.originalRow = JSON.stringify(current);
         const fields = getCompanyFieldDefs();
@@ -1853,6 +1958,7 @@
         try {
             await updateCompanyInSupabase(tr.dataset.id, next);
             await loadCompanies();
+            document.getElementById('companyTable')?.classList.remove('row-editing');
             status.textContent = '항목이 수정되었습니다.';
         } catch (error) {
             console.error(error);
@@ -1913,6 +2019,7 @@
         const tr = button.closest('tr');
         const original = JSON.parse(tr.dataset.originalRow || '{}');
         updateCompanyRow(tr, { ...original, id: tr.dataset.id });
+        document.getElementById('companyTable')?.classList.remove('row-editing');
         filterTable();
     }
 
@@ -1955,23 +2062,23 @@
                 </div>
             `
             : requestFileViewControl;
-        const fieldBody = (content) => `<div class="inline-detail-field-body">${content}</div>`;
-        const readonlyValue = (value) => fieldBody(`<div class="inline-detail-readonly">${escapeHtml(value || '-')}</div>`);
+        const fieldBody = (content, field) => `<div class="inline-detail-field-body" data-detail-body="${field}">${content}</div>`;
+        const readonlyValue = (value, field) => fieldBody(`<div class="inline-detail-readonly">${escapeHtml(value || '-')}</div>`, field);
         const documentsControl = isAdminMode
-            ? fieldBody(`<textarea rows="1" data-detail-field="documents">${escapeHtml(row.documents || '')}</textarea>`)
-            : readonlyValue(row.documents);
+            ? fieldBody(`<textarea rows="1" data-detail-field="documents">${escapeHtml(row.documents || '')}</textarea>`, 'documents')
+            : readonlyValue(row.documents, 'documents');
         const documentDateControl = isAdminMode
-            ? fieldBody(`<input data-detail-field="documentDate" value="${escapeAttr(row.documentDate || '')}" placeholder="예: 2026.05.20">`)
-            : readonlyValue(row.documentDate);
+            ? fieldBody(`<input data-detail-field="documentDate" value="${escapeAttr(row.documentDate || '')}" placeholder="예: 2026.05.20">`, 'documentDate')
+            : readonlyValue(row.documentDate, 'documentDate');
         const aptitudeDateControl = isAdminMode
-            ? fieldBody(`<input data-detail-field="aptitudeDate" value="${escapeAttr(row.aptitudeDate || '')}" placeholder="예: 2026.05.24">`)
-            : readonlyValue(row.aptitudeDate);
+            ? fieldBody(`<input data-detail-field="aptitudeDate" value="${escapeAttr(row.aptitudeDate || '')}" placeholder="예: 2026.05.24">`, 'aptitudeDate')
+            : readonlyValue(row.aptitudeDate, 'aptitudeDate');
         const interviewDateControl = isAdminMode
-            ? fieldBody(`<input data-detail-field="interviewDate" value="${escapeAttr(row.interviewDate || '')}" placeholder="예: 2026.05.27">`)
-            : readonlyValue(row.interviewDate);
+            ? fieldBody(`<input data-detail-field="interviewDate" value="${escapeAttr(row.interviewDate || '')}" placeholder="예: 2026.05.27">`, 'interviewDate')
+            : readonlyValue(row.interviewDate, 'interviewDate');
         const notesControl = isAdminMode
-            ? fieldBody(`<textarea rows="2" data-detail-field="notes">${escapeHtml(row.notes || '')}</textarea>`)
-            : readonlyValue(row.notes);
+            ? fieldBody(`<textarea rows="2" data-detail-field="notes">${escapeHtml(row.notes || '')}</textarea>`, 'notes')
+            : readonlyValue(row.notes, 'notes');
         const officerControl = isAdminMode
             ? `<span class="inline-detail-officer">담당 <input data-detail-field="officer" value="${escapeAttr(row.officer || '')}"></span>`
             : `<span class="inline-detail-officer">담당 ${escapeHtml(row.officer || '-')}</span>`;
@@ -2020,6 +2127,55 @@
             </td>
         `;
         tr.after(detailRow);
+        requestAnimationFrame(() => {
+            syncInlineDetailFieldHeights(detailRow);
+            detailRow.querySelector('[data-detail-field="notes"]')?.addEventListener('input', () => {
+                syncInlineDetailFieldHeights(detailRow);
+            });
+        });
+    }
+
+    function syncInlineDetailFieldHeights(detailRow) {
+        if (!detailRow) return;
+        const bodies = Array.from(detailRow.querySelectorAll('.inline-detail-field-body'));
+        const notesBody = detailRow.querySelector('[data-detail-body="notes"]');
+        const notesContent = notesBody?.querySelector('textarea, .inline-detail-readonly');
+        if (!bodies.length || !notesBody || !notesContent) return;
+
+        if (window.matchMedia('(max-width: 640px)').matches) {
+            bodies.forEach((body) => {
+                body.style.removeProperty('--inline-detail-body-height');
+                body.classList.remove('notes-scroll');
+            });
+            notesContent.style.removeProperty('height');
+            return;
+        }
+
+        bodies.forEach((body) => {
+            body.style.removeProperty('--inline-detail-body-height');
+            body.classList.remove('notes-scroll');
+        });
+        notesContent.style.height = 'auto';
+
+        const bodyStyle = getComputedStyle(notesBody);
+        const contentStyle = getComputedStyle(notesContent);
+        const bodyChrome = parseFloat(bodyStyle.paddingTop)
+            + parseFloat(bodyStyle.paddingBottom)
+            + parseFloat(bodyStyle.borderTopWidth)
+            + parseFloat(bodyStyle.borderBottomWidth);
+        const contentChrome = parseFloat(contentStyle.paddingTop) + parseFloat(contentStyle.paddingBottom);
+        const lineHeight = parseFloat(contentStyle.lineHeight) || parseFloat(contentStyle.fontSize) * 1.35;
+        const minHeight = 38;
+        const maxHeight = Math.ceil(bodyChrome + contentChrome + (lineHeight * 3));
+        const neededHeight = Math.ceil(notesContent.scrollHeight + bodyChrome);
+        const nextHeight = Math.min(maxHeight, Math.max(minHeight, neededHeight));
+        const shouldScroll = neededHeight > maxHeight + 1;
+
+        bodies.forEach((body) => {
+            body.style.setProperty('--inline-detail-body-height', `${nextHeight}px`);
+        });
+        notesBody.classList.toggle('notes-scroll', shouldScroll);
+        notesContent.style.height = '100%';
     }
 
     function getVisibleCompanyColumnCount() {
