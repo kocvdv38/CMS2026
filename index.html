@@ -368,8 +368,8 @@
         .inline-detail-panel {
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            margin: 8px;
-            padding: 12px;
+            margin: 6px 8px;
+            padding: 10px;
             background: #fff;
         }
 
@@ -379,16 +379,15 @@
         }
 
         .inline-detail-header {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(280px, 430px);
+            display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 12px;
-            margin-bottom: 14px;
+            margin-bottom: 8px;
         }
 
         .inline-detail-url-field {
-            display: grid;
-            grid-template-columns: auto minmax(0, 1fr);
+            display: flex;
             align-items: center;
             gap: 8px;
         }
@@ -409,20 +408,14 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-height: 34px;
-            padding: 7px 10px;
-            border-radius: 6px;
+            width: 34px;
+            height: 34px;
+            border-radius: 999px;
             background: #dbeafe;
             color: #1d4ed8;
-            font-size: 0.9em;
+            font-size: 1.05em;
             font-weight: 700;
             text-decoration: none;
-            white-space: nowrap;
-        }
-
-        .homepage-link-empty {
-            color: #94a3b8;
-            font-size: 0.9em;
         }
 
         .inline-detail-panel input:disabled,
@@ -434,7 +427,7 @@
         .inline-detail-grid {
             display: grid;
             grid-template-columns: repeat(6, minmax(0, 1fr));
-            gap: 14px 10px;
+            gap: 8px 10px;
         }
 
         .inline-detail-field.full {
@@ -445,6 +438,10 @@
             grid-column: span 2;
         }
 
+        .inline-detail-field.span-3 {
+            grid-column: span 3;
+        }
+
         .inline-detail-field.span-4 {
             grid-column: span 4;
         }
@@ -452,29 +449,41 @@
         .inline-detail-field label {
             display: block;
             font-weight: 700;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             color: #475569;
         }
 
         .inline-detail-field input,
         .inline-detail-field textarea {
-            padding: 8px;
+            padding: 6px 8px;
             font-size: 0.9em;
         }
 
+        .inline-detail-readonly {
+            min-height: 32px;
+            padding: 6px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: #f8fafc;
+            color: #475569;
+            font-size: 0.9em;
+            line-height: 1.45;
+            white-space: pre-wrap;
+        }
+
         .inline-detail-field textarea[data-detail-field="documents"] {
-            min-height: 54px;
+            min-height: 40px;
         }
 
         .inline-detail-field textarea[data-detail-field="notes"] {
-            min-height: 66px;
+            min-height: 44px;
         }
 
         .inline-detail-actions {
             display: flex;
             justify-content: flex-end;
             gap: 8px;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         @media (max-width: 640px) {
@@ -487,16 +496,14 @@
             }
 
             .inline-detail-field.span-2,
+            .inline-detail-field.span-3,
             .inline-detail-field.span-4 {
                 grid-column: 1;
             }
 
             .inline-detail-header {
-                grid-template-columns: 1fr;
-            }
-
-            .inline-detail-url-field {
-                grid-template-columns: 1fr;
+                align-items: flex-start;
+                flex-direction: column;
             }
         }
     </style>
@@ -1110,7 +1117,7 @@
             officer: cleanupField(row.officer || row['담당 산학협력지원관'] || row['담당자'] || ''),
             documentDate: cleanupField(row.documentDate || row['서류전형 일자'] || row['서류전형일'] || ''),
             interviewDate: cleanupField(row.interviewDate || row['면접일정 일자'] || row['면접일정'] || ''),
-            notes: cleanupField(row.notes || row['특이사항'] || row['비고'] || '')
+            notes: cleanupMultilineField(row.notes || row['특이사항'] || row['비고'] || '')
         };
     }
 
@@ -1376,30 +1383,35 @@
         const disabledAttr = isAdminMode ? '' : 'disabled';
         const hiddenAdminClass = isAdminMode ? '' : 'hidden';
         const homepageControl = isAdminMode
-            ? `<input type="url" data-detail-field="homepageUrl" value="${escapeAttr(row.homepageUrl || '')}" placeholder="https://example.com">`
+            ? `
+                <div class="inline-detail-url-field">
+                    <label>회사 홈페이지 URL</label>
+                    <input type="url" data-detail-field="homepageUrl" value="${escapeAttr(row.homepageUrl || '')}" placeholder="https://example.com">
+                </div>
+            `
             : renderHomepageLink(row.homepageUrl);
+        const notesControl = isAdminMode
+            ? `<textarea rows="3" data-detail-field="notes">${escapeHtml(row.notes || '')}</textarea>`
+            : `<div class="inline-detail-readonly">${escapeHtml(row.notes || '')}</div>`;
         detailRow.innerHTML = `
             <td colspan="${COMPANY_COLUMNS.length + 1}">
                 <div class="inline-detail-panel">
                     <div class="inline-detail-header">
                         <div class="inline-detail-title">${escapeHtml(row.companyName || '기업')} 상세</div>
-                        <div class="inline-detail-url-field">
-                            <label>회사 홈페이지 URL</label>
-                            ${homepageControl}
-                        </div>
+                        ${homepageControl}
                     </div>
                     <div class="inline-detail-grid">
-                        <div class="inline-detail-field span-4">
+                        <div class="inline-detail-field span-3">
                             <label>필요서류</label>
                             <textarea rows="2" data-detail-field="documents" ${disabledAttr}>${escapeHtml(row.documents || '')}</textarea>
+                        </div>
+                        <div class="inline-detail-field span-3">
+                            <label>담당 산학협력지원관</label>
+                            <input data-detail-field="officer" value="${escapeAttr(row.officer || '')}" ${disabledAttr}>
                         </div>
                         <div class="inline-detail-field span-2">
                             <label>제출기한</label>
                             <input data-detail-field="submissionDeadline" value="${escapeAttr(row.submissionDeadline || '')}" placeholder="예: 2026.05.20" ${disabledAttr}>
-                        </div>
-                        <div class="inline-detail-field span-2">
-                            <label>담당 산학협력지원관</label>
-                            <input data-detail-field="officer" value="${escapeAttr(row.officer || '')}" ${disabledAttr}>
                         </div>
                         <div class="inline-detail-field span-2">
                             <label>서류전형 일자</label>
@@ -1411,7 +1423,7 @@
                         </div>
                         <div class="inline-detail-field full">
                             <label>특이사항</label>
-                            <textarea rows="3" data-detail-field="notes" ${disabledAttr}>${escapeHtml(row.notes || '')}</textarea>
+                            ${notesControl}
                         </div>
                     </div>
                     <div class="inline-detail-actions">
@@ -1430,8 +1442,8 @@
 
     function renderHomepageLink(value) {
         const href = normalizeHomepageHref(value);
-        if (!href) return '<span class="homepage-link-empty">등록된 URL 없음</span>';
-        return `<a class="homepage-link-button" href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer">홈페이지 열기</a>`;
+        if (!href) return '';
+        return `<a class="homepage-link-button" href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer" title="홈페이지 열기" aria-label="홈페이지 열기">↗</a>`;
     }
 
     function normalizeHomepageHref(value) {
