@@ -88,6 +88,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
             margin-top: 10px;
             font-size: 0.85em;
         }
@@ -106,10 +107,89 @@
             border-bottom: 1px solid var(--border-color);
             text-align: center;
             white-space: pre-line;
+            overflow-wrap: anywhere;
+        }
+
+        #companyTable th:nth-child(1),
+        #companyTable td:nth-child(1) {
+            width: 12%;
+        }
+
+        #companyTable th:nth-child(2),
+        #companyTable td:nth-child(2) {
+            width: 9%;
+        }
+
+        #companyTable th:nth-child(3),
+        #companyTable td:nth-child(3) {
+            width: 9%;
+        }
+
+        #companyTable td:nth-child(3) {
+            font-size: calc(1em - 2px);
+        }
+
+        #companyTable th:nth-child(4),
+        #companyTable td:nth-child(4),
+        #companyTable th:nth-child(7),
+        #companyTable td:nth-child(7),
+        #companyTable th:nth-child(8),
+        #companyTable td:nth-child(8),
+        #companyTable th:nth-child(11),
+        #companyTable td:nth-child(11),
+        #companyTable th:nth-child(13),
+        #companyTable td:nth-child(13),
+        #companyTable th:nth-child(14),
+        #companyTable td:nth-child(14) {
+            width: 6%;
+        }
+
+        #companyTable th:nth-child(5),
+        #companyTable td:nth-child(5),
+        #companyTable th:nth-child(6),
+        #companyTable td:nth-child(6),
+        #companyTable th:nth-child(9),
+        #companyTable td:nth-child(9),
+        #companyTable th:nth-child(10),
+        #companyTable td:nth-child(10) {
+            width: 7%;
+        }
+
+        #companyTable th:nth-child(12),
+        #companyTable td:nth-child(12) {
+            width: 13%;
+        }
+
+        #companyTable td:nth-child(12) {
+            font-size: calc(1em - 2px);
         }
 
         tr:hover {
             background-color: #f1f5f9;
+        }
+
+        #companyTable tbody tr.deadline-expired:not(.detail-open) td:first-child {
+            position: relative;
+        }
+
+        #companyTable tbody tr.deadline-expired:not(.detail-open) td:first-child::after {
+            content: '제출기한 만료';
+            position: absolute;
+            z-index: 5;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: var(--expired-overlay-width, 100%);
+            height: 100%;
+            background: rgba(148, 163, 184, 0.42);
+            color: rgba(220, 38, 38, 0.72);
+            font-size: 1.05em;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            pointer-events: none;
+            white-space: nowrap;
         }
 
         .badge {
@@ -363,59 +443,154 @@
             background: #f8fafc;
             padding: 0;
             text-align: left;
+            white-space: normal;
+            line-height: normal;
         }
 
         .inline-detail-panel {
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            margin: 6px 8px;
-            padding: 10px;
-            background: #fff;
+            border: 0;
+            border-radius: 0;
+            margin: 0;
+            padding: 8px 10px;
+            background: transparent;
         }
 
         .inline-detail-title {
+            font-size: 0.95em;
             font-weight: 800;
             color: #1e40af;
+        }
+
+        .inline-detail-title-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .inline-detail-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: 8px;
             margin-bottom: 8px;
+        }
+
+        .inline-detail-header-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .inline-detail-officer {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 28px;
+            padding: 0 10px;
+            border-radius: 999px;
+            background: #f8fafc;
+            color: #334155;
+            font-size: 0.82em;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .inline-detail-officer input {
+            width: 120px;
+            height: 24px;
+            padding: 2px 6px;
+            font-size: 0.9em;
         }
 
         .inline-detail-url-field {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .inline-detail-url-field label {
             color: #475569;
-            font-size: 0.9em;
+            font-size: 0.82em;
             font-weight: 700;
             white-space: nowrap;
         }
 
         .inline-detail-url-field input {
-            padding: 7px 8px;
-            font-size: 0.9em;
+            height: 26px;
+            padding: 3px 7px;
+            font-size: 0.85em;
         }
 
         .homepage-link-button {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 34px;
-            height: 34px;
+            height: 28px;
+            padding: 0 10px;
             border-radius: 999px;
-            background: #dbeafe;
-            color: #1d4ed8;
-            font-size: 1.05em;
-            font-weight: 700;
+            background: #eef2ff;
+            color: #3730a3;
+            font-size: 0.82em;
+            font-weight: 800;
             text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .request-file-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 28px;
+            padding: 0 10px;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #3730a3;
+            font-size: 0.82em;
+            font-weight: 800;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .request-file-button.disabled {
+            background: #e2e8f0;
+            color: #64748b;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .detail-header-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 28px;
+            padding: 0 10px;
+            border: 0;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #3730a3;
+            cursor: pointer;
+            font-size: 0.82em;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .request-file-upload {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .request-file-upload label {
+            color: #475569;
+            font-size: 0.82em;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .request-file-upload input {
+            max-width: 190px;
+            padding: 4px;
+            font-size: 0.82em;
         }
 
         .inline-detail-panel input:disabled,
@@ -426,8 +601,25 @@
 
         .inline-detail-grid {
             display: grid;
-            grid-template-columns: repeat(6, minmax(0, 1fr));
-            gap: 8px 10px;
+            grid-template-columns: repeat(40, minmax(0, 1fr));
+            gap: 5px 10px;
+        }
+
+        .inline-detail-field {
+            display: block;
+            min-height: 0;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            box-sizing: border-box;
+        }
+
+        .inline-detail-field-body {
+            min-height: 28px;
+            padding: 5px 7px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #fff;
         }
 
         .inline-detail-field.full {
@@ -438,6 +630,18 @@
             grid-column: span 2;
         }
 
+        .inline-detail-field.span-7 {
+            grid-column: span 7;
+        }
+
+        .inline-detail-field.span-12 {
+            grid-column: span 12;
+        }
+
+        .inline-detail-field.span-16 {
+            grid-column: span 16;
+        }
+
         .inline-detail-field.span-3 {
             grid-column: span 3;
         }
@@ -446,44 +650,66 @@
             grid-column: span 4;
         }
 
+        .inline-detail-field.span-8 {
+            grid-column: span 8;
+        }
+
+        .inline-detail-field.span-5 {
+            grid-column: span 5;
+        }
+
         .inline-detail-field label {
             display: block;
+            font-size: 0.86em;
             font-weight: 700;
+            line-height: 1.1;
             margin-bottom: 3px;
             color: #475569;
         }
 
         .inline-detail-field input,
         .inline-detail-field textarea {
-            padding: 6px 8px;
-            font-size: 0.9em;
+            height: 28px;
+            min-height: 28px;
+            padding: 4px 7px;
+            font-size: 0.85em;
+            line-height: 1.25;
+            background: #fff;
         }
 
         .inline-detail-readonly {
-            min-height: 32px;
-            padding: 6px 8px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background: #f8fafc;
-            color: #475569;
-            font-size: 0.9em;
-            line-height: 1.45;
+            display: block;
+            min-height: 16px;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: #334155;
+            font-size: 0.85em;
+            line-height: 1.35;
             white-space: pre-wrap;
         }
 
         .inline-detail-field textarea[data-detail-field="documents"] {
-            min-height: 40px;
+            height: 30px;
+            min-height: 30px;
         }
 
         .inline-detail-field textarea[data-detail-field="notes"] {
-            min-height: 44px;
+            height: 42px;
+            min-height: 42px;
         }
 
         .inline-detail-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 8px;
+            gap: 6px;
             margin-top: 8px;
+        }
+
+        .inline-detail-actions .secondary-button,
+        .inline-detail-actions .primary-button {
+            padding: 6px 10px;
+            font-size: 0.85em;
         }
 
         @media (max-width: 640px) {
@@ -496,8 +722,13 @@
             }
 
             .inline-detail-field.span-2,
+            .inline-detail-field.span-7,
+            .inline-detail-field.span-12,
+            .inline-detail-field.span-16,
             .inline-detail-field.span-3,
-            .inline-detail-field.span-4 {
+            .inline-detail-field.span-4,
+            .inline-detail-field.span-5,
+            .inline-detail-field.span-8 {
                 grid-column: 1;
             }
 
@@ -544,31 +775,25 @@
         </div>
         <div class="filter-group">
             <label>소재지</label>
-            <input type="text" id="searchLocation" onkeyup="filterTable()" placeholder="소재지 검색...">
+            <input type="text" id="searchLocation" list="filterLocationOptions" oninput="filterTable()" placeholder="소재지 검색 또는 선택...">
+            <datalist id="filterLocationOptions"></datalist>
         </div>
         <div class="filter-group">
             <label>기업분류</label>
             <select id="filterType" onchange="filterTable()">
                 <option value="">전체</option>
-                <option value="대기업">대기업</option>
-                <option value="중견기업">중견기업</option>
-                <option value="중소기업">중소기업</option>
             </select>
         </div>
         <div class="filter-group">
             <label>기숙사</label>
             <select id="filterDormitory" onchange="filterTable()">
                 <option value="">전체</option>
-                <option value="유">유</option>
-                <option value="무">무</option>
             </select>
         </div>
         <div class="filter-group">
             <label>병역특례</label>
             <select id="filterMilitary" onchange="filterTable()">
                 <option value="">전체</option>
-                <option value="가능">가능</option>
-                <option value="불가능">불가능</option>
             </select>
         </div>
         <div class="filter-group">
@@ -579,8 +804,6 @@
             <label>계열</label>
             <select id="filterSeries" onchange="filterTable()">
                 <option value="">전체</option>
-                <option value="전기">전기</option>
-                <option value="기계">기계</option>
             </select>
         </div>
         <div class="filter-group">
@@ -621,10 +844,13 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
 <script>
     const SUPABASE_URL = 'https://ukjobivzdfqqyfgedgca.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_NWVUo7FNImZX7DkpuZAt0A_d1YbCOUp';
     const SUPABASE_TABLE = 'companies';
+    const SUPABASE_REQUEST_BUCKET = 'recruitment-requests';
+    const REQUEST_FILE_MAX_BYTES = 200 * 1024;
     const SUPABASE_COLUMN_MAP = {
         id: 'id',
         companyName: 'company_name',
@@ -641,6 +867,9 @@
         job: 'job',
         headcount: 'headcount',
         homepageUrl: 'homepage_url',
+        requestFileUrl: 'request_file_url',
+        requestFilePath: 'request_file_path',
+        requestFileName: 'request_file_name',
         documents: 'documents',
         submissionDeadline: 'submission_deadline',
         officer: 'officer',
@@ -684,7 +913,10 @@
         document.getElementById('dashboardTitle')?.addEventListener('click', handleAdminTitleClick);
         applyAdminMode();
         loadCompanies();
-        window.addEventListener('resize', fitCompanyNameButtons);
+        window.addEventListener('resize', () => {
+            fitCompanyNameButtons();
+            document.querySelectorAll('#companyTable tbody tr.deadline-expired').forEach(updateExpiredOverlayWidth);
+        });
     });
 
     function handleAdminTitleClick() {
@@ -1112,6 +1344,9 @@
             location: normalizeLocation(row.location || row['소재지'] || row.address || ''),
             series: normalizeSeries(row.series || row['계열'] || row.major || ''),
             homepageUrl: cleanupField(row.homepageUrl || row['회사 홈페이지 URL'] || row['홈페이지 URL'] || row['홈페이지'] || ''),
+            requestFileUrl: cleanupField(row.requestFileUrl || row['채용요청서 URL'] || row['채용요청서'] || ''),
+            requestFilePath: cleanupField(row.requestFilePath || row['채용요청서 경로'] || ''),
+            requestFileName: cleanupField(row.requestFileName || row['채용요청서 파일명'] || ''),
             documents: cleanupField(row.documents || row['필요서류'] || ''),
             submissionDeadline: cleanupField(row.submissionDeadline || row['제출기한'] || row['서류제출기한'] || ''),
             officer: cleanupField(row.officer || row['담당 산학협력지원관'] || row['담당자'] || ''),
@@ -1131,16 +1366,50 @@
     function renderCompanyRows(rows) {
         const tbody = document.querySelector('#companyTable tbody');
         tbody.innerHTML = '';
+        rows = rows.map(normalizeCompanyRow);
+        updateFilterOptions(rows);
         if (!rows.length) {
             tbody.innerHTML = '<tr><td colspan="14">등록된 기업 항목이 없습니다.</td></tr>';
             return;
         }
         rows.forEach((row) => {
             const tr = document.createElement('tr');
-            updateCompanyRow(tr, normalizeCompanyRow(row));
+            updateCompanyRow(tr, row);
             tbody.appendChild(tr);
         });
         filterTable();
+    }
+
+    function updateFilterOptions(rows) {
+        setDatalistOptions('filterLocationOptions', getUniqueValues(rows, 'location'));
+        setSelectOptions('filterType', getUniqueValues(rows, 'type'));
+        setSelectOptions('filterDormitory', getUniqueValues(rows, 'dormitory'));
+        setSelectOptions('filterMilitary', getUniqueValues(rows, 'military'));
+        setSelectOptions('filterSeries', getUniqueSeriesValues(rows));
+    }
+
+    function getUniqueValues(rows, field) {
+        return [...new Set(rows.map((row) => cleanupField(row[field])).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ko'));
+    }
+
+    function getUniqueSeriesValues(rows) {
+        const values = rows.flatMap((row) => cleanupField(row.series).split(',').map((item) => item.trim()).filter(Boolean));
+        return [...new Set(values)].sort((a, b) => a.localeCompare(b, 'ko'));
+    }
+
+    function setSelectOptions(selectId, values) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        const selected = select.value;
+        select.innerHTML = '<option value="">전체</option>'
+            + values.map((value) => `<option value="${escapeAttr(value)}">${escapeHtml(value)}</option>`).join('');
+        select.value = values.includes(selected) ? selected : '';
+    }
+
+    function setDatalistOptions(datalistId, values) {
+        const datalist = document.getElementById(datalistId);
+        if (!datalist) return;
+        datalist.innerHTML = values.map((value) => `<option value="${escapeAttr(value)}"></option>`).join('');
     }
 
     async function saveCompanyRows(rows) {
@@ -1158,6 +1427,8 @@
         tr.__companyRow = row;
         delete tr.dataset.editing;
         delete tr.dataset.originalRow;
+        tr.classList.toggle('deadline-expired', isSubmissionDeadlineExpired(row.submissionDeadline));
+        tr.classList.remove('detail-open');
         tr.innerHTML = `
             <td><button class="company-name-button" type="button" onclick="showCompanyDetail(this)">${escapeHtml(row.companyName)}</button></td>
             <td>${escapeHtml(normalizeLocation(row.location))}</td>
@@ -1174,6 +1445,7 @@
             <td>${escapeHtml(row.headcount)}</td>
             <td class="admin-only ${isAdminMode ? '' : 'hidden'}">${renderActionButtons()}</td>
         `;
+        requestAnimationFrame(() => updateExpiredOverlayWidth(tr));
         requestAnimationFrame(() => fitCompanyNameButton(tr.querySelector('.company-name-button')));
     }
 
@@ -1184,6 +1456,35 @@
                 <button class="btn-small btn-delete" type="button" onclick="deleteCompanyRow(this)">삭제</button>
             </div>
         `;
+    }
+
+    function isSubmissionDeadlineExpired(value) {
+        const deadline = parseKoreanDate(value);
+        if (!deadline) return false;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        deadline.setHours(23, 59, 59, 999);
+        return deadline < today;
+    }
+
+    function parseKoreanDate(value) {
+        const text = cleanupField(value);
+        if (!text) return null;
+        const match = text.match(/(\d{4})[.\-/년\s]+(\d{1,2})[.\-/월\s]+(\d{1,2})/);
+        if (!match) return null;
+        const year = Number(match[1]);
+        const month = Number(match[2]);
+        const day = Number(match[3]);
+        if (!year || !month || !day) return null;
+        const date = new Date(year, month - 1, day);
+        return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day
+            ? date
+            : null;
+    }
+
+    function updateExpiredOverlayWidth(tr) {
+        if (!tr?.classList?.contains('deadline-expired')) return;
+        tr.style.setProperty('--expired-overlay-width', `${tr.getBoundingClientRect().width}px`);
     }
 
     function normalizeExistingRows() {
@@ -1231,6 +1532,9 @@
             job: cells[11]?.textContent.trim() || '',
             headcount: cells[12]?.textContent.trim() || '',
             homepageUrl: row.homepageUrl || '',
+            requestFileUrl: row.requestFileUrl || '',
+            requestFilePath: row.requestFilePath || '',
+            requestFileName: row.requestFileName || '',
             documents: row.documents || '',
             submissionDeadline: row.submissionDeadline || '',
             officer: row.officer || '',
@@ -1353,12 +1657,18 @@
         }
     }
 
-    function showSavingNotice() {
-        document.getElementById('savingNotice')?.classList.remove('hidden');
+    function showSavingNotice(message = '반영중입니다.') {
+        const notice = document.getElementById('savingNotice');
+        if (!notice) return;
+        notice.textContent = message;
+        notice.classList.remove('hidden');
     }
 
     function hideSavingNotice() {
-        document.getElementById('savingNotice')?.classList.add('hidden');
+        const notice = document.getElementById('savingNotice');
+        if (!notice) return;
+        notice.textContent = '반영중입니다.';
+        notice.classList.add('hidden');
     }
 
     function cancelCompanyRowEdit(button) {
@@ -1373,15 +1683,23 @@
         const openDetail = tr.nextElementSibling;
         if (openDetail?.classList.contains('company-detail-row')) {
             openDetail.remove();
+            tr.classList.remove('detail-open');
+            updateExpiredOverlayWidth(tr);
             return;
         }
 
         document.querySelectorAll('.company-detail-row').forEach((row) => row.remove());
+        document.querySelectorAll('#companyTable tbody tr.detail-open').forEach((row) => {
+            row.classList.remove('detail-open');
+            updateExpiredOverlayWidth(row);
+        });
         const row = tr.__companyRow || getCompanyRowData(tr);
         const detailRow = document.createElement('tr');
         detailRow.className = 'company-detail-row';
-        const disabledAttr = isAdminMode ? '' : 'disabled';
+        tr.classList.add('detail-open');
         const hiddenAdminClass = isAdminMode ? '' : 'hidden';
+        const homepageLinkControl = renderHomepageLink(row.homepageUrl);
+        const requestFileViewControl = renderRequestFileLink(row.requestFileUrl);
         const homepageControl = isAdminMode
             ? `
                 <div class="inline-detail-url-field">
@@ -1389,46 +1707,76 @@
                     <input type="url" data-detail-field="homepageUrl" value="${escapeAttr(row.homepageUrl || '')}" placeholder="https://example.com">
                 </div>
             `
-            : renderHomepageLink(row.homepageUrl);
+            : '';
+        const requestFileUploadControl = isAdminMode
+            ? `
+                <div class="request-file-upload">
+                    ${requestFileViewControl}
+                    <label>채용요청서 업로드</label>
+                    <input type="file" data-detail-file="request" accept="image/*,.pdf,application/pdf,.doc,.docx,.hwp,.hwpx">
+                </div>
+            `
+            : requestFileViewControl;
+        const fieldBody = (content) => `<div class="inline-detail-field-body">${content}</div>`;
+        const readonlyValue = (value) => fieldBody(`<div class="inline-detail-readonly">${escapeHtml(value || '-')}</div>`);
+        const documentsControl = isAdminMode
+            ? fieldBody(`<textarea rows="1" data-detail-field="documents">${escapeHtml(row.documents || '')}</textarea>`)
+            : readonlyValue(row.documents);
+        const submissionDeadlineControl = isAdminMode
+            ? fieldBody(`<input data-detail-field="submissionDeadline" value="${escapeAttr(row.submissionDeadline || '')}" placeholder="예: 2026.05.20">`)
+            : readonlyValue(row.submissionDeadline);
+        const documentDateControl = isAdminMode
+            ? fieldBody(`<input data-detail-field="documentDate" value="${escapeAttr(row.documentDate || '')}" placeholder="예: 2026.05.20">`)
+            : readonlyValue(row.documentDate);
+        const interviewDateControl = isAdminMode
+            ? fieldBody(`<input data-detail-field="interviewDate" value="${escapeAttr(row.interviewDate || '')}" placeholder="예: 2026.05.27">`)
+            : readonlyValue(row.interviewDate);
         const notesControl = isAdminMode
-            ? `<textarea rows="3" data-detail-field="notes">${escapeHtml(row.notes || '')}</textarea>`
-            : `<div class="inline-detail-readonly">${escapeHtml(row.notes || '')}</div>`;
+            ? fieldBody(`<textarea rows="2" data-detail-field="notes">${escapeHtml(row.notes || '')}</textarea>`)
+            : readonlyValue(row.notes);
+        const officerControl = isAdminMode
+            ? `<span class="inline-detail-officer">담당 <input data-detail-field="officer" value="${escapeAttr(row.officer || '')}"></span>`
+            : `<span class="inline-detail-officer">담당 ${escapeHtml(row.officer || '-')}</span>`;
         detailRow.innerHTML = `
-            <td colspan="${COMPANY_COLUMNS.length + 1}">
+            <td colspan="${getVisibleCompanyColumnCount()}">
                 <div class="inline-detail-panel">
                     <div class="inline-detail-header">
-                        <div class="inline-detail-title">${escapeHtml(row.companyName || '기업')} 상세</div>
-                        ${homepageControl}
+                        <div class="inline-detail-title-group">
+                            <div class="inline-detail-title">${escapeHtml(row.companyName || '기업')} 상세</div>
+                            ${!isAdminMode ? officerControl : ''}
+                        </div>
+                        <div class="inline-detail-header-actions">
+                            ${!isAdminMode ? homepageLinkControl : ''}
+                            ${requestFileUploadControl}
+                            ${homepageControl}
+                            ${isAdminMode ? officerControl : ''}
+                            <button class="detail-header-button" type="button" onclick="closeInlineCompanyDetail(this)">닫기</button>
+                        </div>
                     </div>
                     <div class="inline-detail-grid">
-                        <div class="inline-detail-field span-3">
+                        <div class="inline-detail-field span-7">
                             <label>필요서류</label>
-                            <textarea rows="2" data-detail-field="documents" ${disabledAttr}>${escapeHtml(row.documents || '')}</textarea>
+                            ${documentsControl}
                         </div>
-                        <div class="inline-detail-field span-3">
-                            <label>담당 산학협력지원관</label>
-                            <input data-detail-field="officer" value="${escapeAttr(row.officer || '')}" ${disabledAttr}>
-                        </div>
-                        <div class="inline-detail-field span-2">
+                        <div class="inline-detail-field span-4">
                             <label>제출기한</label>
-                            <input data-detail-field="submissionDeadline" value="${escapeAttr(row.submissionDeadline || '')}" placeholder="예: 2026.05.20" ${disabledAttr}>
+                            ${submissionDeadlineControl}
                         </div>
-                        <div class="inline-detail-field span-2">
+                        <div class="inline-detail-field span-4">
                             <label>서류전형 일자</label>
-                            <input data-detail-field="documentDate" value="${escapeAttr(row.documentDate || '')}" placeholder="예: 2026.05.20" ${disabledAttr}>
+                            ${documentDateControl}
                         </div>
-                        <div class="inline-detail-field span-2">
-                            <label>면접일정 일자</label>
-                            <input data-detail-field="interviewDate" value="${escapeAttr(row.interviewDate || '')}" placeholder="예: 2026.05.27" ${disabledAttr}>
+                        <div class="inline-detail-field span-4">
+                            <label>면접 일자</label>
+                            ${interviewDateControl}
                         </div>
-                        <div class="inline-detail-field full">
+                        <div class="inline-detail-field span-16">
                             <label>특이사항</label>
                             ${notesControl}
                         </div>
                     </div>
-                    <div class="inline-detail-actions">
-                        <button class="secondary-button" type="button" onclick="closeInlineCompanyDetail(this)">닫기</button>
-                        <button class="primary-button admin-only ${hiddenAdminClass}" type="button" onclick="saveInlineCompanyDetail(this)">상세 저장</button>
+                    <div class="inline-detail-actions admin-only ${hiddenAdminClass}">
+                        <button class="primary-button" type="button" onclick="saveInlineCompanyDetail(this)">상세 저장</button>
                     </div>
                 </div>
             </td>
@@ -1436,14 +1784,28 @@
         tr.after(detailRow);
     }
 
+    function getVisibleCompanyColumnCount() {
+        return COMPANY_COLUMNS.length + (isAdminMode ? 1 : 0);
+    }
+
     function closeInlineCompanyDetail(button) {
-        button.closest('.company-detail-row')?.remove();
+        const detailRow = button.closest('.company-detail-row');
+        const dataRow = detailRow?.previousElementSibling;
+        detailRow?.remove();
+        dataRow?.classList.remove('detail-open');
+        updateExpiredOverlayWidth(dataRow);
     }
 
     function renderHomepageLink(value) {
         const href = normalizeHomepageHref(value);
         if (!href) return '';
-        return `<a class="homepage-link-button" href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer" title="홈페이지 열기" aria-label="홈페이지 열기">↗</a>`;
+        return `<a class="homepage-link-button" href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer" title="홈페이지 열기" aria-label="홈페이지 열기">홈페이지</a>`;
+    }
+
+    function renderRequestFileLink(value) {
+        const href = cleanupField(value);
+        if (!href) return '<span class="request-file-button disabled">채용요청서보기</span>';
+        return `<a class="request-file-button" href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer">채용요청서보기</a>`;
     }
 
     function normalizeHomepageHref(value) {
@@ -1452,13 +1814,150 @@
         return /^https?:\/\//i.test(url) ? url : `https://${url}`;
     }
 
+    async function uploadRequestFile(file, companyId, previousPath = '') {
+        if (!file) return null;
+        if (!companyId) throw new Error('파일을 업로드하려면 먼저 항목 ID가 필요합니다.');
+
+        const prepared = await prepareRequestFile(file);
+        const path = `${companyId}/${Date.now()}-${createStorageSafeFileName(prepared.name, prepared.file.type || file.type)}`;
+        const { error } = await getSupabaseClient()
+            .storage
+            .from(SUPABASE_REQUEST_BUCKET)
+            .upload(path, prepared.file, {
+                cacheControl: '3600',
+                contentType: prepared.file.type || file.type || 'application/octet-stream',
+                upsert: false
+            });
+
+        if (error) throw error;
+
+        if (previousPath) {
+            await getSupabaseClient().storage.from(SUPABASE_REQUEST_BUCKET).remove([previousPath]);
+        }
+
+        const { data } = getSupabaseClient().storage.from(SUPABASE_REQUEST_BUCKET).getPublicUrl(path);
+        return {
+            requestFileUrl: data?.publicUrl || '',
+            requestFilePath: path,
+            requestFileName: prepared.name
+        };
+    }
+
+    async function prepareRequestFile(file) {
+        if (isPdfFile(file)) {
+            const compressed = await compressPdfFile(file);
+            if (compressed.size > REQUEST_FILE_MAX_BYTES) {
+                throw new Error('PDF를 200KB 미만으로 줄이지 못했습니다. 스캔 이미지가 많은 PDF는 압축 후 다시 업로드해주세요.');
+            }
+            return { file: compressed, name: file.name };
+        }
+        if (!file.type.startsWith('image/')) {
+            if (file.size > REQUEST_FILE_MAX_BYTES) {
+                throw new Error('이 문서 파일은 자동 압축할 수 없습니다. 200KB 이하 파일만 업로드해주세요.');
+            }
+            return { file, name: file.name };
+        }
+        const compressed = await compressImageFile(file);
+        if (compressed.size > REQUEST_FILE_MAX_BYTES) {
+            throw new Error('이미지를 200KB 미만으로 줄이지 못했습니다. 해상도가 낮은 파일로 다시 시도해주세요.');
+        }
+        return { file: compressed, name: file.name.replace(/\.[^.]+$/, '.jpg') };
+    }
+
+    function isPdfFile(file) {
+        return file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+    }
+
+    async function compressPdfFile(file) {
+        if (file.size <= REQUEST_FILE_MAX_BYTES) return file;
+        if (!window.PDFLib?.PDFDocument) {
+            throw new Error('PDF 압축 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해주세요.');
+        }
+
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfDoc = await window.PDFLib.PDFDocument.load(arrayBuffer, {
+            ignoreEncryption: true,
+            updateMetadata: false
+        });
+        pdfDoc.setProducer('CMS PDF Compressor');
+        pdfDoc.setCreator('CMS');
+        const bytes = await pdfDoc.save({
+            useObjectStreams: true,
+            addDefaultPage: false,
+            objectsPerTick: 50
+        });
+        const compressed = new File([bytes], file.name, { type: 'application/pdf' });
+        return compressed.size < file.size ? compressed : file;
+    }
+
+    function compressImageFile(file) {
+        return new Promise((resolve, reject) => {
+            const image = new Image();
+            const objectUrl = URL.createObjectURL(file);
+            image.onload = () => {
+                URL.revokeObjectURL(objectUrl);
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                const tryCompress = (maxSize, quality) => {
+                    const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
+                    canvas.width = Math.max(1, Math.round(image.width * scale));
+                    canvas.height = Math.max(1, Math.round(image.height * scale));
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+                    canvas.toBlob((blob) => {
+                        if (!blob) {
+                            reject(new Error('이미지 압축에 실패했습니다.'));
+                            return;
+                        }
+                        if (blob.size <= REQUEST_FILE_MAX_BYTES || (maxSize <= 600 && quality <= 0.45)) {
+                            resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
+                            return;
+                        }
+                        const nextQuality = quality > 0.5 ? quality - 0.08 : quality;
+                        const nextMaxSize = quality > 0.5 ? maxSize : Math.round(maxSize * 0.85);
+                        tryCompress(nextMaxSize, nextQuality);
+                    }, 'image/jpeg', quality);
+                };
+                tryCompress(1600, 0.82);
+            };
+            image.onerror = () => {
+                URL.revokeObjectURL(objectUrl);
+                reject(new Error('이미지 파일을 읽지 못했습니다.'));
+            };
+            image.src = objectUrl;
+        });
+    }
+
+    function sanitizeStorageFileName(value) {
+        return String(value || 'request-file')
+            .replace(/[^\w.\-가-힣]+/g, '_')
+            .replace(/_+/g, '_')
+            .slice(0, 120);
+    }
+
+    function createStorageSafeFileName(fileName, mimeType = '') {
+        const extension = getFileExtension(fileName, mimeType);
+        const random = Math.random().toString(36).slice(2, 10);
+        return `request-${random}${extension}`;
+    }
+
+    function getFileExtension(fileName, mimeType = '') {
+        const match = String(fileName || '').match(/\.[a-z0-9]+$/i);
+        if (match) return match[0].toLowerCase();
+        if (mimeType === 'application/pdf') return '.pdf';
+        if (mimeType === 'image/jpeg') return '.jpg';
+        if (mimeType === 'image/png') return '.png';
+        return '.bin';
+    }
+
     async function saveInlineCompanyDetail(button) {
         if (!hasAdminPermission()) return;
         const detailRow = button.closest('.company-detail-row');
         const dataRow = detailRow?.previousElementSibling;
         if (!dataRow) return;
+        const original = dataRow.__companyRow || getCompanyRowData(dataRow);
         const next = normalizeCompanyRow({
-            ...(dataRow.__companyRow || getCompanyRowData(dataRow)),
+            ...original,
             homepageUrl: detailRow.querySelector('[data-detail-field="homepageUrl"]').value,
             documents: detailRow.querySelector('[data-detail-field="documents"]').value,
             submissionDeadline: detailRow.querySelector('[data-detail-field="submissionDeadline"]').value,
@@ -1469,16 +1968,24 @@
         });
         const status = document.getElementById('uploadStatus');
 
-        showSavingNotice();
+        showSavingNotice('상세 항목을 저장하는 중입니다...');
         button.disabled = true;
         try {
+            const requestFile = detailRow.querySelector('[data-detail-file="request"]')?.files?.[0];
+            if (requestFile) {
+                showSavingNotice('채용요청서를 200KB 미만으로 압축/업로드 중입니다...');
+                Object.assign(next, await uploadRequestFile(requestFile, dataRow.dataset.id, original.requestFilePath));
+            }
+            showSavingNotice('상세 항목을 Supabase에 저장하는 중입니다...');
             await updateCompanyInSupabase(dataRow.dataset.id, next);
             detailRow.remove();
             await loadCompanies();
             status.textContent = '상세 항목이 저장되었습니다.';
         } catch (error) {
             console.error(error);
-            status.textContent = getErrorMessage(error) || '상세 항목을 저장하지 못했습니다.';
+            const message = getErrorMessage(error) || '상세 항목을 저장하지 못했습니다.';
+            status.textContent = message;
+            alert(message);
             button.disabled = false;
         } finally {
             hideSavingNotice();
@@ -1570,6 +2077,9 @@
         if (/permission denied|row-level security|violates row-level security/i.test(message)) {
             return 'Supabase RLS 정책 때문에 저장할 수 없습니다. CMS_supabase_schema.sql의 정책을 실행했는지 확인해주세요.';
         }
+        if (/bucket not found|storage/i.test(message)) {
+            return 'Supabase Storage 버킷 설정이 필요합니다. CMS_supabase_schema.sql을 SQL Editor에서 다시 실행해주세요.';
+        }
         return message;
     }
 
@@ -1589,20 +2099,21 @@
         for (let i = 1; i < tr.length; i++) {
             const cells = tr[i].getElementsByTagName('td');
             if (cells.length < COMPANY_COLUMNS.length) continue;
+            const row = tr[i].__companyRow || {};
             const tdName = cells[0].textContent.toLowerCase();
             const tdLocation = cells[1].textContent.toLowerCase();
-            const tdType = cells[3].textContent;
-            const tdDormitory = cells[6].textContent;
-            const tdMilitary = cells[7].textContent;
+            const tdType = row.type || cells[3].textContent;
+            const tdDormitory = row.dormitory || cells[6].textContent;
+            const tdMilitary = row.military || cells[7].textContent;
             const tdWorkType = cells[8].textContent.toLowerCase();
-            const tdSeries = cells[10].textContent;
+            const tdSeries = row.series || cells[10].textContent;
             const tdJob = cells[11].textContent.toLowerCase();
 
             const matchName = tdName.includes(nameInput);
             const matchLocation = tdLocation.includes(locationInput);
-            const matchType = typeInput === "" || tdType.includes(typeInput);
-            const matchDormitory = dormitoryInput === "" || tdDormitory.includes(dormitoryInput);
-            const matchMilitary = militaryInput === "" || tdMilitary.includes(militaryInput);
+            const matchType = typeInput === "" || tdType === typeInput;
+            const matchDormitory = dormitoryInput === "" || tdDormitory === dormitoryInput;
+            const matchMilitary = militaryInput === "" || tdMilitary === militaryInput;
             const matchWorkType = tdWorkType.includes(workTypeInput);
             const matchSeries = seriesInput === "" || tdSeries.includes(seriesInput);
             const matchJob = tdJob.includes(jobInput);
