@@ -1,0 +1,1586 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기업 채용 정보 관리 시스템</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --bg-color: #f8fafe;
+            --text-color: #333;
+            --border-color: #e1e8ed;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0,05);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-left: 5px solid var(--primary-color);
+            padding-left: 15px;
+            margin-bottom: 25px;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .header-row h2 {
+            margin-bottom: 0;
+        }
+
+        .dashboard-title {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* 필터 영역 */
+        .filter-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #64748b;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        /* 테이블 영역 */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.85em;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            padding: 12px;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+            white-space: pre-line;
+        }
+
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-align: center;
+        }
+        .badge-blue { background: #dbeafe; color: #1e40af; }
+        .badge-green { background: #dcfce7; color: #166534; }
+
+        .type-badge {
+            min-width: 38px;
+            flex-direction: column;
+            gap: 1px;
+            line-height: 1.2;
+        }
+
+        .company-link {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .upload-section {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .upload-section h3 {
+            margin: 0 0 10px;
+            color: #1e40af;
+        }
+
+        .upload-help {
+            margin: 8px 0 0;
+            color: #64748b;
+            font-size: 0.9em;
+            line-height: 1.45;
+        }
+
+        .upload-status {
+            margin-top: 10px;
+            color: #1e40af;
+            font-weight: 600;
+            min-height: 20px;
+        }
+
+        .ai-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .primary-button,
+        .secondary-button {
+            border: 0;
+            border-radius: 6px;
+            padding: 10px 12px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .primary-button {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .secondary-button {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        #aiResultText {
+            min-height: 120px;
+            margin-top: 12px;
+            font-family: Consolas, 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        .btn-small {
+            border: 0;
+            border-radius: 5px;
+            padding: 6px 8px;
+            cursor: pointer;
+            font-size: 0.82em;
+            font-weight: 600;
+        }
+
+        .btn-edit {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .btn-save {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .btn-cancel {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .cell-edit-input,
+        .cell-edit-select {
+            min-width: 110px;
+            padding: 7px;
+            font-size: 0.9em;
+        }
+
+        .cell-edit-input {
+            min-height: 38px;
+            line-height: 1.35;
+            resize: vertical;
+            white-space: pre-wrap;
+        }
+
+        .cell-edit-checks {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            min-width: 110px;
+        }
+
+        .cell-edit-checks label {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .cell-edit-checks input {
+            width: auto;
+        }
+
+        .saving-notice {
+            position: fixed;
+            top: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+            padding: 12px 18px;
+            border-radius: 999px;
+            background: #1e40af;
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.22);
+            font-weight: 700;
+        }
+
+        .table-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .company-name-button {
+            border: 0;
+            background: transparent;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-weight: 700;
+            text-decoration: underline;
+            display: block;
+            max-width: 150px;
+            margin: 0 auto;
+            line-height: 1.25;
+            max-height: 2.5em;
+            overflow: hidden;
+            overflow-wrap: anywhere;
+            white-space: normal;
+        }
+
+        .detail-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .detail-dialog {
+            width: min(720px, 100%);
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
+            overflow: hidden;
+        }
+
+        .detail-header,
+        .detail-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-footer {
+            border-top: 1px solid var(--border-color);
+            border-bottom: 0;
+            justify-content: flex-end;
+        }
+
+        .detail-body {
+            padding: 18px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .detail-field.full {
+            grid-column: 1 / -1;
+        }
+
+        .detail-field label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #475569;
+        }
+
+        .company-detail-row td {
+            background: #f8fafc;
+            padding: 0;
+            text-align: left;
+        }
+
+        .inline-detail-panel {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin: 8px;
+            padding: 12px;
+            background: #fff;
+        }
+
+        .inline-detail-title {
+            font-weight: 800;
+            color: #1e40af;
+        }
+
+        .inline-detail-header {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(280px, 430px);
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .inline-detail-url-field {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            align-items: center;
+            gap: 8px;
+        }
+
+        .inline-detail-url-field label {
+            color: #475569;
+            font-size: 0.9em;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .inline-detail-url-field input {
+            padding: 7px 8px;
+            font-size: 0.9em;
+        }
+
+        .homepage-link-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 34px;
+            padding: 7px 10px;
+            border-radius: 6px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-size: 0.9em;
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .homepage-link-empty {
+            color: #94a3b8;
+            font-size: 0.9em;
+        }
+
+        .inline-detail-panel input:disabled,
+        .inline-detail-panel textarea:disabled {
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        .inline-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 14px 10px;
+        }
+
+        .inline-detail-field.full {
+            grid-column: 1 / -1;
+        }
+
+        .inline-detail-field.span-2 {
+            grid-column: span 2;
+        }
+
+        .inline-detail-field.span-4 {
+            grid-column: span 4;
+        }
+
+        .inline-detail-field label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #475569;
+        }
+
+        .inline-detail-field input,
+        .inline-detail-field textarea {
+            padding: 8px;
+            font-size: 0.9em;
+        }
+
+        .inline-detail-field textarea[data-detail-field="documents"] {
+            min-height: 54px;
+        }
+
+        .inline-detail-field textarea[data-detail-field="notes"] {
+            min-height: 66px;
+        }
+
+        .inline-detail-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 640px) {
+            .detail-body {
+                grid-template-columns: 1fr;
+            }
+
+            .inline-detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .inline-detail-field.span-2,
+            .inline-detail-field.span-4 {
+                grid-column: 1;
+            }
+
+            .inline-detail-header {
+                grid-template-columns: 1fr;
+            }
+
+            .inline-detail-url-field {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="saving-notice hidden" id="savingNotice" role="status" aria-live="polite">반영중입니다.</div>
+
+<div class="container">
+    <div class="header-row">
+        <h2 class="dashboard-title" id="dashboardTitle" title="관리자 모드">🏢 기업 채용 정보 관리 대시보드</h2>
+        <button class="primary-button admin-only hidden" type="button" onclick="toggleAiCompanyPanel()">AI기업추가</button>
+    </div>
+
+    <div class="upload-section hidden" id="aiCompanyPanel">
+        <h3>Gemini로 항목 추출</h3>
+        <input type="file" id="sourceFileInput" accept="image/*,.pdf,application/pdf" onchange="handleAiFileSelect(event)">
+        <p class="upload-help">
+            API 키 없이 사용하는 방식입니다. 파일을 선택한 뒤 프롬프트를 복사하고 Gemini에 파일을 직접 첨부해 보내세요.
+            Gemini가 돌려준 JSON을 아래에 붙여넣으면 항목이 바로 추가됩니다.
+        </p>
+        <div class="upload-status" id="uploadStatus"></div>
+        <div class="ai-actions">
+            <button class="primary-button" type="button" onclick="copyGeminiPrompt()">Gemini 프롬프트 복사</button>
+            <button class="secondary-button" type="button" onclick="openGemini()">Gemini 열기</button>
+        </div>
+        <textarea id="aiResultText" placeholder="Gemini 답변(JSON)을 여기에 붙여넣으세요."></textarea>
+        <div class="ai-actions">
+            <button class="primary-button" type="button" onclick="addAiResultRows()">붙여넣은 결과 항목 추가</button>
+        </div>
+    </div>
+
+    <!-- 필터 및 검색 -->
+    <div class="filter-section">
+        <div class="filter-group">
+            <label>회사명 검색</label>
+            <input type="text" id="searchName" onkeyup="filterTable()" placeholder="회사명 입력...">
+        </div>
+        <div class="filter-group">
+            <label>소재지</label>
+            <input type="text" id="searchLocation" onkeyup="filterTable()" placeholder="소재지 검색...">
+        </div>
+        <div class="filter-group">
+            <label>기업분류</label>
+            <select id="filterType" onchange="filterTable()">
+                <option value="">전체</option>
+                <option value="대기업">대기업</option>
+                <option value="중견기업">중견기업</option>
+                <option value="중소기업">중소기업</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>기숙사</label>
+            <select id="filterDormitory" onchange="filterTable()">
+                <option value="">전체</option>
+                <option value="유">유</option>
+                <option value="무">무</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>병역특례</label>
+            <select id="filterMilitary" onchange="filterTable()">
+                <option value="">전체</option>
+                <option value="가능">가능</option>
+                <option value="불가능">불가능</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>근무형태</label>
+            <input type="text" id="searchWorkType" onkeyup="filterTable()" placeholder="근무형태 검색...">
+        </div>
+        <div class="filter-group">
+            <label>계열</label>
+            <select id="filterSeries" onchange="filterTable()">
+                <option value="">전체</option>
+                <option value="전기">전기</option>
+                <option value="기계">기계</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>직무</label>
+            <input type="text" id="searchJob" onkeyup="filterTable()" placeholder="직무 검색...">
+        </div>
+    </div>
+
+    <!-- 데이터 테이블 -->
+    <div class="table-actions admin-only hidden">
+        <button class="primary-button" type="button" onclick="addManualCompany()">직접 항목 추가</button>
+    </div>
+    <div class="table-wrapper">
+        <table id="companyTable">
+            <thead>
+                <tr>
+                    <th>회사명</th>
+                    <th>소재지</th>
+                    <th>업종</th>
+                    <th>기업분류</th>
+                    <th>연매출</th>
+                    <th>종업원</th>
+                    <th>기숙사</th>
+                    <th>병역특례</th>
+                    <th>근무형태</th>
+                    <th>급여</th>
+                    <th>계열</th>
+                    <th>직무</th>
+                    <th>채용인원</th>
+                    <th class="admin-only hidden">관리</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="14">데이터를 불러오는 중입니다...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+    const SUPABASE_TABLE = 'companies';
+    const SUPABASE_COLUMN_MAP = {
+        id: 'id',
+        companyName: 'company_name',
+        location: 'location',
+        industry: 'industry',
+        type: 'type',
+        revenue: 'revenue',
+        employees: 'employees',
+        dormitory: 'dormitory',
+        military: 'military',
+        workType: 'work_type',
+        salary: 'salary',
+        series: 'series',
+        job: 'job',
+        headcount: 'headcount',
+        homepageUrl: 'homepage_url',
+        documents: 'documents',
+        submissionDeadline: 'submission_deadline',
+        officer: 'officer',
+        documentDate: 'document_date',
+        interviewDate: 'interview_date',
+        notes: 'notes'
+    };
+    const COMPANY_COLUMNS = [
+        '회사명',
+        '소재지',
+        '업종',
+        '기업분류',
+        '연매출',
+        '종업원',
+        '기숙사',
+        '병역특례',
+        '근무형태',
+        '급여',
+        '계열',
+        '직무',
+        '채용인원'
+    ];
+    const DETAIL_FIELDS = [
+        'homepageUrl',
+        'documents',
+        'submissionDeadline',
+        'officer',
+        'documentDate',
+        'interviewDate',
+        'notes'
+    ];
+    const ADMIN_CLICK_COUNT = 3;
+    const ADMIN_CLICK_WINDOW_MS = 5000;
+    let selectedAiFileName = '';
+    let currentDetailRow = null;
+    let supabaseClient = null;
+    let isAdminMode = false;
+    let adminTitleClicks = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('dashboardTitle')?.addEventListener('click', handleAdminTitleClick);
+        applyAdminMode();
+        loadCompanies();
+        window.addEventListener('resize', fitCompanyNameButtons);
+    });
+
+    function handleAdminTitleClick() {
+        const now = Date.now();
+        adminTitleClicks = adminTitleClicks
+            .filter((clickedAt) => now - clickedAt <= ADMIN_CLICK_WINDOW_MS)
+            .concat(now);
+
+        if (!isAdminMode && adminTitleClicks.length >= ADMIN_CLICK_COUNT) {
+            isAdminMode = true;
+            applyAdminMode();
+            const status = document.getElementById('uploadStatus');
+            if (status) status.textContent = '관리자 모드가 활성화되었습니다.';
+        }
+    }
+
+    function applyAdminMode() {
+        document.body.classList.toggle('admin-mode', isAdminMode);
+        document.querySelectorAll('.admin-only').forEach((element) => {
+            element.classList.toggle('hidden', !isAdminMode);
+        });
+        if (!isAdminMode) {
+            document.getElementById('aiCompanyPanel')?.classList.add('hidden');
+            document.querySelectorAll('.company-detail-row').forEach((row) => row.remove());
+        }
+    }
+
+    function hasAdminPermission() {
+        if (isAdminMode) return true;
+        const status = document.getElementById('uploadStatus');
+        if (status) status.textContent = '관리자 권한이 없습니다. 제목을 5초 안에 3번 클릭하면 관리자 모드가 활성화됩니다.';
+        return false;
+    }
+
+    function isSupabaseConfigured() {
+        return Boolean(
+            window.supabase
+            && SUPABASE_URL
+            && SUPABASE_ANON_KEY
+            && !SUPABASE_URL.includes('YOUR_PROJECT_ID')
+            && !SUPABASE_ANON_KEY.includes('YOUR_SUPABASE_ANON_KEY')
+        );
+    }
+
+    function getSupabaseClient() {
+        if (!isSupabaseConfigured()) {
+            throw new Error('Supabase URL과 anon key를 먼저 설정해주세요.');
+        }
+        if (!supabaseClient) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+        return supabaseClient;
+    }
+
+    function toggleAiCompanyPanel() {
+        if (!hasAdminPermission()) return;
+        document.getElementById('aiCompanyPanel').classList.toggle('hidden');
+    }
+
+    async function loadCompanies() {
+        const status = document.getElementById('uploadStatus');
+        try {
+            if (!isSupabaseConfigured()) {
+                renderCompanyRows([]);
+                status.textContent = 'Supabase 설정이 필요합니다. CMS.html 상단의 SUPABASE_URL과 SUPABASE_ANON_KEY를 입력해주세요.';
+                return;
+            }
+            status.textContent = 'Supabase에서 데이터를 불러오는 중입니다...';
+            const rows = await fetchCompaniesFromSupabase();
+            renderCompanyRows(rows);
+            status.textContent = `Supabase에서 ${rows.length}개 항목을 불러왔습니다.`;
+        } catch (error) {
+            console.error(error);
+            status.textContent = getErrorMessage(error) || 'Supabase 데이터를 불러오지 못했습니다.';
+        }
+    }
+
+    async function fetchCompaniesFromSupabase() {
+        const { data, error } = await getSupabaseClient()
+            .from(SUPABASE_TABLE)
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return (data || []).map(supabaseRowToCompany);
+    }
+
+    async function insertCompaniesToSupabase(rows) {
+        const payload = rows.map(companyToSupabaseRow);
+        payload.forEach((row) => delete row.id);
+
+        const { error } = await getSupabaseClient()
+            .from(SUPABASE_TABLE)
+            .insert(payload);
+
+        if (error) throw error;
+    }
+
+    async function updateCompanyInSupabase(id, row) {
+        if (!id) throw new Error('수정할 항목의 ID가 없습니다.');
+        const payload = companyToSupabaseRow(row);
+        delete payload.id;
+
+        const { error } = await getSupabaseClient()
+            .from(SUPABASE_TABLE)
+            .update(payload)
+            .eq('id', id);
+
+        if (error) throw error;
+    }
+
+    async function deleteCompanyFromSupabase(id) {
+        if (!id) throw new Error('삭제할 항목의 ID가 없습니다.');
+        const { error } = await getSupabaseClient()
+            .from(SUPABASE_TABLE)
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+    }
+
+    function companyToSupabaseRow(company) {
+        const normalized = normalizeCompanyRow(company);
+        return Object.entries(SUPABASE_COLUMN_MAP).reduce((row, [field, column]) => {
+            row[column] = normalized[field] || '';
+            return row;
+        }, {});
+    }
+
+    function supabaseRowToCompany(row) {
+        const company = Object.entries(SUPABASE_COLUMN_MAP).reduce((next, [field, column]) => {
+            next[field] = row?.[column] ?? row?.[field] ?? '';
+            return next;
+        }, {});
+        return normalizeCompanyRow(company);
+    }
+
+    function handleAiFileSelect(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+
+        const status = document.getElementById('uploadStatus');
+        selectedAiFileName = file.name;
+        status.textContent = `${file.name} 선택됨. 프롬프트를 복사한 뒤 Gemini에 이 파일을 첨부해 보내세요.`;
+    }
+
+    function buildGeminiPrompt() {
+        return `첨부한 채용 정보 파일(${selectedAiFileName || '업로드한 파일'})에서 기업 채용 항목을 추출해줘.
+
+반드시 아래 JSON 배열 형식만 출력해줘. 설명, 마크다운, 코드블록은 쓰지 마.
+값을 찾을 수 없으면 빈 문자열("")로 넣어줘.
+
+[
+  {
+    "회사명": "",
+    "소재지": "주소가 있으면 시/군/구까지만. 예: 경기도 평택시 충북읍 드림산단 3로 90 → 경기도 평택시",
+    "업종": "",
+    "기업분류": "대기업/중견기업/중소기업 중 하나 또는 빈 문자열",
+    "연매출": "",
+    "종업원": "",
+    "기숙사": "",
+    "병역특례": "가능/불가능 중 하나 또는 빈 문자열",
+    "근무형태": "",
+    "급여": "",
+    "계열": "전기/기계 중 하나 이상 또는 빈 문자열",
+    "직무": "",
+    "채용인원": "",
+    "회사 홈페이지 URL": "",
+    "필요서류": "",
+    "제출기한": "",
+    "담당 산학협력지원관": "",
+    "서류전형 일자": "",
+    "면접일정 일자": "",
+    "특이사항": ""
+  }
+]
+
+주의사항:
+- 여러 회사가 있으면 객체를 여러 개 만들어줘.
+- 표에 있는 내용을 최대한 그대로 옮겨줘.
+- 회사명은 반드시 채워줘.
+- 소재지는 전체 주소를 쓰지 말고 시/군/구까지만 써줘. 예: "경기도 평택시 충북읍 드림산단 3로 90"이면 "경기도 평택시".
+- 계열은 직무/전공/모집분야를 보고 전기, 기계 중 해당되는 값을 모두 적어줘. 둘 다 해당되면 "전기, 기계"로 적고, 판단이 어려우면 빈 문자열로 둬.
+- 회사 홈페이지 URL, 필요서류, 제출기한, 담당 산학협력지원관, 서류전형 일자, 면접일정 일자, 특이사항도 있으면 추출해줘.
+- 숫자 단위(억, 명, 원, 만원)는 원문 표현을 유지해줘.`;
+    }
+
+    async function copyGeminiPrompt() {
+        const promptText = buildGeminiPrompt();
+        try {
+            await navigator.clipboard.writeText(promptText);
+            document.getElementById('uploadStatus').textContent = 'Gemini 프롬프트를 복사했습니다. Gemini에 파일을 첨부하고 붙여넣어 보내세요.';
+        } catch (error) {
+            console.error(error);
+            document.getElementById('uploadStatus').textContent = '프롬프트 복사에 실패했습니다. 브라우저 권한을 확인해주세요.';
+        }
+    }
+
+    function openGemini() {
+        window.open('https://gemini.google.com/', '_blank', 'noopener');
+    }
+
+    async function addAiResultRows() {
+        if (!hasAdminPermission()) return;
+        const input = document.getElementById('aiResultText');
+        const status = document.getElementById('uploadStatus');
+        try {
+            const rows = parseAiRows(input.value);
+            if (!rows.length) {
+                status.textContent = '추가할 항목이 없습니다. Gemini 답변을 다시 확인해주세요.';
+                return;
+            }
+
+            await saveCompanyRows(rows);
+            input.value = '';
+            status.textContent = `${rows.length}개 항목이 추가되었습니다.`;
+        } catch (error) {
+            console.error(error);
+            status.textContent = error.message || 'Gemini 답변을 읽지 못했습니다.';
+        }
+    }
+
+    function parseAiRows(value) {
+        let cleaned = String(value || '')
+            .trim()
+            .replace(/^```(?:json)?/i, '')
+            .replace(/```$/i, '')
+            .trim();
+        if (!cleaned) return [];
+
+        if (!cleaned.startsWith('[') && !cleaned.startsWith('{')) {
+            const arrayStart = cleaned.indexOf('[');
+            const arrayEnd = cleaned.lastIndexOf(']');
+            const objectStart = cleaned.indexOf('{');
+            const objectEnd = cleaned.lastIndexOf('}');
+            if (arrayStart >= 0 && arrayEnd > arrayStart) {
+                cleaned = cleaned.slice(arrayStart, arrayEnd + 1);
+            } else if (objectStart >= 0 && objectEnd > objectStart) {
+                cleaned = cleaned.slice(objectStart, objectEnd + 1);
+            }
+        }
+
+        const parsed = JSON.parse(cleaned);
+        const rows = Array.isArray(parsed) ? parsed : [parsed];
+        return rows.map(normalizeAiRow).filter((row) => row.companyName);
+    }
+
+    function normalizeAiRow(row) {
+        return {
+            companyName: getAiField(row, '회사명', 'companyName'),
+            location: normalizeLocation(getAiField(row, '소재지', '주소', 'location', 'address')),
+            industry: getAiField(row, '업종', 'industry'),
+            type: getAiField(row, '기업분류', 'type'),
+            revenue: getAiField(row, '연매출', 'revenue'),
+            employees: getAiField(row, '종업원', 'employees'),
+            dormitory: getAiField(row, '기숙사', 'dormitory'),
+            military: getAiField(row, '병역특례', 'military'),
+            workType: getAiField(row, '근무형태', 'workType'),
+            salary: getAiField(row, '급여', 'salary'),
+            series: normalizeSeries(getAiField(row, '계열', '전공계열', 'series')),
+            job: getAiField(row, '직무', '직무(전공)', '전공', 'job'),
+            headcount: getAiField(row, '채용인원', 'headcount'),
+            homepageUrl: getAiField(row, '회사 홈페이지 URL', '홈페이지', '홈페이지 URL', 'website', 'homepageUrl'),
+            documents: getAiField(row, '필요서류', 'documents'),
+            submissionDeadline: getAiField(row, '제출기한', '서류제출기한', 'submissionDeadline'),
+            officer: getAiField(row, '담당 산학협력지원관', '담당자', '산학협력지원관', 'officer'),
+            documentDate: getAiField(row, '서류전형 일자', '서류전형일', 'documentDate'),
+            interviewDate: getAiField(row, '면접일정 일자', '면접일정', '면접일', 'interviewDate'),
+            notes: getAiField(row, '특이사항', '비고', 'notes')
+        };
+    }
+
+    function getAiField(row, ...keys) {
+        for (const key of keys) {
+            if (row && row[key] !== undefined && row[key] !== null) {
+                return cleanupField(row[key]);
+            }
+        }
+        return '';
+    }
+
+    function parseCompanyText(text, fileName = '') {
+        const lines = text
+            .split(/\r?\n/)
+            .map((line) => line.replace(/\s+/g, ' ').trim())
+            .filter(Boolean);
+        const compact = lines.join(' ');
+
+        const companyName = pickCompanyName(lines, fileName);
+        const location = normalizeLocation(getValueAfterLabels(compact, ['소재지', '주소', '근무지', '위치']));
+        const industry = getValueAfterLabels(compact, ['업종', '주요생산품', '생산품']) || '';
+        const type = getCompanyType(compact);
+        const revenue = getFirstMatch(compact, /\d[\d,.]*\s*(?:억|조)(?:\s*원)?/) || '';
+        const employees = getFirstMatch(compact, /\d[\d,.]*\s*(?:명|명\+)/) || '';
+        const dormitory = getDormitory(compact);
+        const military = /병역\s*특례.{0,10}(가능|불가능)|산업기능요원|보충역|현역/i.test(compact)
+            ? (/불가능|불가/i.test(compact) ? '불가능' : '가능')
+            : '';
+        const workType = getFirstMatch(compact, /(?:주간근무|주간|야간|교대|2교대|3교대|4조\s*\d교대|상주근무)/) || '';
+        const salary = getFirstMatch(compact, /(?:시급|월급|연봉)\s*[\d,]+(?:\s*원|\s*만원|\+)?/) || '';
+        const job = getValueAfterLabels(compact, ['직무', '전공', '담당업무', '모집직무']) || '';
+        const series = normalizeSeries(getValueAfterLabels(compact, ['계열', '전공계열']) || job || compact);
+        const headcount = getFirstMatch(compact, /\d+\s*명\s*\([^)]+\)|\d+\s*명/) || '';
+        const homepageUrl = getFirstMatch(compact, /https?:\/\/[^\s]+|www\.[^\s]+/) || '';
+        const documents = getValueAfterLabels(compact, ['필요서류', '제출서류', '서류']) || '';
+        const submissionDeadline = getValueAfterLabels(compact, ['제출기한', '서류제출기한', '접수마감']) || '';
+
+        return {
+            companyName,
+            location,
+            industry,
+            type,
+            revenue,
+            employees,
+            dormitory,
+            military,
+            workType,
+            salary,
+            series,
+            job,
+            headcount,
+            homepageUrl,
+            documents,
+            submissionDeadline,
+            officer: '',
+            documentDate: '',
+            interviewDate: '',
+            notes: ''
+        };
+    }
+
+    function pickCompanyName(lines, fileName) {
+        const ignored = /기업|채용|정보|관리|업종|연매출|종업원|기숙사|병역|근무|급여|직무|필요서류|제출서류|제출기한/;
+        const nameLine = lines.find((line) => !ignored.test(line) && /(주식회사|\(주\)|㈜|회사|기업|산업|테크|전자|정밀|공업)/.test(line));
+        if (nameLine) return cleanupField(nameLine);
+
+        const fallback = lines.find((line) => !ignored.test(line) && line.length >= 2);
+        if (fallback) return cleanupField(fallback);
+
+        return fileName.replace(/\.[^.]+$/, '') || '새 회사';
+    }
+
+    function getValueAfterLabels(text, labels) {
+        for (const label of labels) {
+            const regex = new RegExp(`${label}\\s*[:：]?\\s*([^|\\n]{2,40})`, 'i');
+            const match = text.match(regex);
+            if (match) return cleanupField(match[1]);
+        }
+        return '';
+    }
+
+    function getFirstMatch(text, regex) {
+        const match = text.match(regex);
+        return match ? cleanupField(match[0]) : '';
+    }
+
+    function getCompanyType(text) {
+        if (/대기업/.test(text)) return '대기업';
+        if (/중견기업/.test(text)) return '중견기업';
+        if (/중소기업/.test(text)) return '중소기업';
+        return '';
+    }
+
+    function getDormitory(text) {
+        if (/기숙사.{0,12}(유|있|제공|사내|사외)/.test(text)) {
+            const match = text.match(/유\s*\((?:사내|사외)\)/);
+            return match ? match[0].replace(/\s+/g, '') : '유';
+        }
+        if (/기숙사.{0,12}(무|없|미제공)/.test(text)) return '무';
+        return '';
+    }
+
+    function cleanupField(value) {
+        return String(value || '')
+            .replace(/[|]+/g, ' ')
+            .replace(/\s{2,}/g, ' ')
+            .replace(/^[\s:：.-]+|[\s:：.-]+$/g, '')
+            .trim();
+    }
+
+    function cleanupMultilineField(value) {
+        return String(value || '')
+            .replace(/[|]+/g, ' ')
+            .split(/\r?\n/)
+            .map((line) => line.replace(/[ \t]{2,}/g, ' ').replace(/^[\s:：.-]+|[\s:：.-]+$/g, ''))
+            .join('\n')
+            .trim();
+    }
+
+    function normalizeLocation(value) {
+        const rawText = cleanupMultilineField(value);
+        if (rawText.includes('\n')) return rawText;
+        const text = cleanupField(rawText);
+        if (!text) return '';
+        const match = text.match(/^(\S+(?:도|시|특별시|광역시|특별자치시|특별자치도))\s+(\S+(?:시|군|구))/);
+        if (match) return `${match[1]} ${match[2]}`;
+        return text.split(/\s+/).slice(0, 2).join(' ');
+    }
+
+    function normalizeSeries(value) {
+        const text = cleanupField(value);
+        if (!text) return '';
+        const values = [];
+        if (/전기|전자|전력|전장|전기설비/.test(text)) values.push('전기');
+        if (/기계|가공|정비|용접|금형|설비보전|CNC|MCT|선반|밀링/i.test(text)) values.push('기계');
+        if (!values.length && (text === '전기' || text === '기계')) values.push(text);
+        return [...new Set(values)].join(', ');
+    }
+
+    function normalizeCompanyRow(row) {
+        return {
+            ...row,
+            location: normalizeLocation(row.location || row['소재지'] || row.address || ''),
+            series: normalizeSeries(row.series || row['계열'] || row.major || ''),
+            homepageUrl: cleanupField(row.homepageUrl || row['회사 홈페이지 URL'] || row['홈페이지 URL'] || row['홈페이지'] || ''),
+            documents: cleanupField(row.documents || row['필요서류'] || ''),
+            submissionDeadline: cleanupField(row.submissionDeadline || row['제출기한'] || row['서류제출기한'] || ''),
+            officer: cleanupField(row.officer || row['담당 산학협력지원관'] || row['담당자'] || ''),
+            documentDate: cleanupField(row.documentDate || row['서류전형 일자'] || row['서류전형일'] || ''),
+            interviewDate: cleanupField(row.interviewDate || row['면접일정 일자'] || row['면접일정'] || ''),
+            notes: cleanupField(row.notes || row['특이사항'] || row['비고'] || '')
+        };
+    }
+
+    function addCompanyRow(row) {
+        const tbody = document.querySelector('#companyTable tbody');
+        const tr = document.createElement('tr');
+        updateCompanyRow(tr, normalizeCompanyRow(row));
+        tbody.prepend(tr);
+    }
+
+    function renderCompanyRows(rows) {
+        const tbody = document.querySelector('#companyTable tbody');
+        tbody.innerHTML = '';
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="14">등록된 기업 항목이 없습니다.</td></tr>';
+            return;
+        }
+        rows.forEach((row) => {
+            const tr = document.createElement('tr');
+            updateCompanyRow(tr, normalizeCompanyRow(row));
+            tbody.appendChild(tr);
+        });
+        filterTable();
+    }
+
+    async function saveCompanyRows(rows) {
+        rows = rows.map(normalizeCompanyRow);
+        await insertCompaniesToSupabase(rows);
+        await loadCompanies();
+    }
+
+    function updateCompanyRow(tr, row) {
+        row = normalizeCompanyRow(row);
+        if (tr.nextElementSibling?.classList.contains('company-detail-row')) {
+            tr.nextElementSibling.remove();
+        }
+        tr.dataset.id = row.id || '';
+        tr.__companyRow = row;
+        delete tr.dataset.editing;
+        delete tr.dataset.originalRow;
+        tr.innerHTML = `
+            <td><button class="company-name-button" type="button" onclick="showCompanyDetail(this)">${escapeHtml(row.companyName)}</button></td>
+            <td>${escapeHtml(normalizeLocation(row.location))}</td>
+            <td>${escapeHtml(row.industry)}</td>
+            <td>${renderTypeBadge(row.type)}</td>
+            <td>${escapeHtml(row.revenue)}</td>
+            <td>${escapeHtml(row.employees)}</td>
+            <td>${escapeHtml(row.dormitory)}</td>
+            <td>${renderMilitaryBadge(row.military)}</td>
+            <td>${escapeHtml(row.workType)}</td>
+            <td>${escapeHtml(row.salary)}</td>
+            <td>${escapeHtml(row.series)}</td>
+            <td>${escapeHtml(row.job)}</td>
+            <td>${escapeHtml(row.headcount)}</td>
+            <td class="admin-only ${isAdminMode ? '' : 'hidden'}">${renderActionButtons()}</td>
+        `;
+        requestAnimationFrame(() => fitCompanyNameButton(tr.querySelector('.company-name-button')));
+    }
+
+    function renderActionButtons() {
+        return `
+            <div class="action-buttons">
+                <button class="btn-small btn-edit" type="button" onclick="editCompanyRow(this)">수정</button>
+                <button class="btn-small btn-delete" type="button" onclick="deleteCompanyRow(this)">삭제</button>
+            </div>
+        `;
+    }
+
+    function normalizeExistingRows() {
+        document.querySelectorAll('#companyTable tbody tr').forEach((tr) => {
+            if (tr.children.length < COMPANY_COLUMNS.length + 1) {
+                const td = document.createElement('td');
+                td.className = 'admin-only';
+                td.innerHTML = renderActionButtons();
+                tr.appendChild(td);
+            }
+            tr.children[COMPANY_COLUMNS.length]?.classList.toggle('hidden', !isAdminMode);
+        });
+    }
+
+    async function addManualCompany() {
+        if (!hasAdminPermission()) return;
+        const row = promptCompanyFields({});
+        if (!row) return;
+
+        const status = document.getElementById('uploadStatus');
+        try {
+            await saveCompanyRows([row]);
+            status.textContent = '항목이 추가되었습니다.';
+        } catch (error) {
+            console.error(error);
+            status.textContent = getErrorMessage(error) || '항목을 추가하지 못했습니다.';
+        }
+    }
+
+    function getCompanyRowData(tr) {
+        const cells = Array.from(tr.children);
+        const row = tr.__companyRow || {};
+        return {
+            companyName: cells[0]?.textContent.trim() || '',
+            location: cells[1]?.textContent.trim() || '',
+            industry: cells[2]?.textContent.trim() || '',
+            type: cells[3]?.textContent.trim() || '',
+            revenue: cells[4]?.textContent.trim() || '',
+            employees: cells[5]?.textContent.trim() || '',
+            dormitory: cells[6]?.textContent.trim() || '',
+            military: cells[7]?.textContent.trim() || '',
+            workType: cells[8]?.textContent.trim() || '',
+            salary: cells[9]?.textContent.trim() || '',
+            series: cells[10]?.textContent.trim() || '',
+            job: cells[11]?.textContent.trim() || '',
+            headcount: cells[12]?.textContent.trim() || '',
+            homepageUrl: row.homepageUrl || '',
+            documents: row.documents || '',
+            submissionDeadline: row.submissionDeadline || '',
+            officer: row.officer || '',
+            documentDate: row.documentDate || '',
+            interviewDate: row.interviewDate || '',
+            notes: row.notes || ''
+        };
+    }
+
+    async function editCompanyRow(button) {
+        if (!hasAdminPermission()) return;
+        const tr = button.closest('tr');
+      if (!tr || tr.dataset.editing === 'true') return;
+      enterCompanyRowEditMode(tr);
+    }
+
+    function enterCompanyRowEditMode(tr) {
+        const current = getCompanyRowData(tr);
+        tr.dataset.editing = 'true';
+        tr.dataset.originalRow = JSON.stringify(current);
+        const fields = getCompanyFieldDefs();
+
+        fields.forEach(([key], index) => {
+            tr.children[index].innerHTML = renderEditControl(key, current[key] || '');
+        });
+        tr.children[COMPANY_COLUMNS.length].innerHTML = `
+            <div class="action-buttons">
+                <button class="btn-small btn-save" type="button" onclick="saveEditedCompanyRow(this)">저장</button>
+                <button class="btn-small btn-cancel" type="button" onclick="cancelCompanyRowEdit(this)">취소</button>
+            </div>
+        `;
+    }
+
+    function renderEditControl(key, value) {
+        if (key === 'type') {
+            return renderSelectControl(key, value, ['', '대기업', '중견기업', '중소기업']);
+        }
+        if (key === 'military') {
+            return renderSelectControl(key, value, ['', '가능', '불가능']);
+        }
+        if (key === 'series') {
+            return renderSeriesControl(value);
+        }
+        const rows = key === 'location' ? 3 : 2;
+        return `<textarea class="cell-edit-input" rows="${rows}" data-edit-field="${key}">${escapeHtml(value)}</textarea>`;
+    }
+
+    function renderSeriesControl(value) {
+        const selected = normalizeSeries(value).split(',').map((item) => item.trim()).filter(Boolean);
+        return `
+            <div class="cell-edit-checks" data-edit-field="series">
+                ${['전기', '기계'].map((option) => `
+                    <label>
+                        <input type="checkbox" value="${escapeAttr(option)}" ${selected.includes(option) ? 'checked' : ''}>
+                        ${escapeHtml(option)}
+                    </label>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    function renderSelectControl(key, value, options) {
+        return `
+            <select class="cell-edit-select" data-edit-field="${key}">
+                ${options.map((option) => `<option value="${escapeAttr(option)}" ${option === value ? 'selected' : ''}>${escapeHtml(option || '선택')}</option>`).join('')}
+            </select>
+        `;
+    }
+
+    async function saveEditedCompanyRow(button) {
+        if (!hasAdminPermission()) return;
+        const tr = button.closest('tr');
+        const next = normalizeCompanyRow({ ...(tr.__companyRow || {}), ...getEditedCompanyRowData(tr) });
+
+        const status = document.getElementById('uploadStatus');
+        showSavingNotice();
+        button.disabled = true;
+        try {
+            await updateCompanyInSupabase(tr.dataset.id, next);
+            await loadCompanies();
+            status.textContent = '항목이 수정되었습니다.';
+        } catch (error) {
+            console.error(error);
+            status.textContent = getErrorMessage(error) || '항목을 수정하지 못했습니다.';
+            button.disabled = false;
+        } finally {
+            hideSavingNotice();
+        }
+    }
+
+    function getEditedCompanyRowData(tr) {
+        const next = {};
+        const seriesChecks = tr.querySelector('[data-edit-field="series"]');
+        if (seriesChecks) {
+            next.series = Array.from(seriesChecks.querySelectorAll('input:checked'))
+                .map((input) => input.value)
+                .join(', ');
+        }
+        tr.querySelectorAll('input[data-edit-field], select[data-edit-field], textarea[data-edit-field]').forEach((input) => {
+            next[input.dataset.editField] = input.value.trim();
+        });
+        return next;
+    }
+
+    function fitCompanyNameButtons() {
+        document.querySelectorAll('.company-name-button').forEach(fitCompanyNameButton);
+    }
+
+    function fitCompanyNameButton(button) {
+        if (!button) return;
+        button.style.fontSize = '';
+        let fontSize = parseFloat(getComputedStyle(button).fontSize);
+        let lineHeight = parseFloat(getComputedStyle(button).lineHeight) || fontSize * 1.25;
+        const minFontSize = 8;
+
+        while (button.scrollHeight > lineHeight * 2 + 1 && fontSize > minFontSize) {
+            fontSize -= 0.5;
+            button.style.fontSize = `${fontSize}px`;
+            lineHeight = parseFloat(getComputedStyle(button).lineHeight) || fontSize * 1.25;
+        }
+    }
+
+    function showSavingNotice() {
+        document.getElementById('savingNotice')?.classList.remove('hidden');
+    }
+
+    function hideSavingNotice() {
+        document.getElementById('savingNotice')?.classList.add('hidden');
+    }
+
+    function cancelCompanyRowEdit(button) {
+        const tr = button.closest('tr');
+        const original = JSON.parse(tr.dataset.originalRow || '{}');
+        updateCompanyRow(tr, { ...original, id: tr.dataset.id });
+        filterTable();
+    }
+
+    function showCompanyDetail(button) {
+        const tr = button.closest('tr');
+        const openDetail = tr.nextElementSibling;
+        if (openDetail?.classList.contains('company-detail-row')) {
+            openDetail.remove();
+            return;
+        }
+
+        document.querySelectorAll('.company-detail-row').forEach((row) => row.remove());
+        const row = tr.__companyRow || getCompanyRowData(tr);
+        const detailRow = document.createElement('tr');
+        detailRow.className = 'company-detail-row';
+        const disabledAttr = isAdminMode ? '' : 'disabled';
+        const hiddenAdminClass = isAdminMode ? '' : 'hidden';
+        const homepageControl = isAdminMode
+            ? `<input type="url" data-detail-field="homepageUrl" value="${escapeAttr(row.homepageUrl || '')}" placeholder="https://example.com">`
+            : renderHomepageLink(row.homepageUrl);
+        detailRow.innerHTML = `
+            <td colspan="${COMPANY_COLUMNS.length + 1}">
+                <div class="inline-detail-panel">
+                    <div class="inline-detail-header">
+                        <div class="inline-detail-title">${escapeHtml(row.companyName || '기업')} 상세</div>
+                        <div class="inline-detail-url-field">
+                            <label>회사 홈페이지 URL</label>
+                            ${homepageControl}
+                        </div>
+                    </div>
+                    <div class="inline-detail-grid">
+                        <div class="inline-detail-field span-4">
+                            <label>필요서류</label>
+                            <textarea rows="2" data-detail-field="documents" ${disabledAttr}>${escapeHtml(row.documents || '')}</textarea>
+                        </div>
+                        <div class="inline-detail-field span-2">
+                            <label>제출기한</label>
+                            <input data-detail-field="submissionDeadline" value="${escapeAttr(row.submissionDeadline || '')}" placeholder="예: 2026.05.20" ${disabledAttr}>
+                        </div>
+                        <div class="inline-detail-field span-2">
+                            <label>담당 산학협력지원관</label>
+                            <input data-detail-field="officer" value="${escapeAttr(row.officer || '')}" ${disabledAttr}>
+                        </div>
+                        <div class="inline-detail-field span-2">
+                            <label>서류전형 일자</label>
+                            <input data-detail-field="documentDate" value="${escapeAttr(row.documentDate || '')}" placeholder="예: 2026.05.20" ${disabledAttr}>
+                        </div>
+                        <div class="inline-detail-field span-2">
+                            <label>면접일정 일자</label>
+                            <input data-detail-field="interviewDate" value="${escapeAttr(row.interviewDate || '')}" placeholder="예: 2026.05.27" ${disabledAttr}>
+                        </div>
+                        <div class="inline-detail-field full">
+                            <label>특이사항</label>
+                            <textarea rows="3" data-detail-field="notes" ${disabledAttr}>${escapeHtml(row.notes || '')}</textarea>
+                        </div>
+                    </div>
+                    <div class="inline-detail-actions">
+                        <button class="secondary-button" type="button" onclick="closeInlineCompanyDetail(this)">닫기</button>
+                        <button class="primary-button admin-only ${hiddenAdminClass}" type="button" onclick="saveInlineCompanyDetail(this)">상세 저장</button>
+                    </div>
+                </div>
+            </td>
+        `;
+        tr.after(detailRow);
+    }
+
+    function closeInlineCompanyDetail(button) {
+        button.closest('.company-detail-row')?.remove();
+    }
+
+    function renderHomepageLink(value) {
+        const href = normalizeHomepageHref(value);
+        if (!href) return '<span class="homepage-link-empty">등록된 URL 없음</span>';
+        return `<a class="homepage-link-button" href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer">홈페이지 열기</a>`;
+    }
+
+    function normalizeHomepageHref(value) {
+        const url = cleanupField(value);
+        if (!url) return '';
+        return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+    }
+
+    async function saveInlineCompanyDetail(button) {
+        if (!hasAdminPermission()) return;
+        const detailRow = button.closest('.company-detail-row');
+        const dataRow = detailRow?.previousElementSibling;
+        if (!dataRow) return;
+        const next = normalizeCompanyRow({
+            ...(dataRow.__companyRow || getCompanyRowData(dataRow)),
+            homepageUrl: detailRow.querySelector('[data-detail-field="homepageUrl"]').value,
+            documents: detailRow.querySelector('[data-detail-field="documents"]').value,
+            submissionDeadline: detailRow.querySelector('[data-detail-field="submissionDeadline"]').value,
+            officer: detailRow.querySelector('[data-detail-field="officer"]').value,
+            documentDate: detailRow.querySelector('[data-detail-field="documentDate"]').value,
+            interviewDate: detailRow.querySelector('[data-detail-field="interviewDate"]').value,
+            notes: detailRow.querySelector('[data-detail-field="notes"]').value
+        });
+        const status = document.getElementById('uploadStatus');
+
+        showSavingNotice();
+        button.disabled = true;
+        try {
+            await updateCompanyInSupabase(dataRow.dataset.id, next);
+            detailRow.remove();
+            await loadCompanies();
+            status.textContent = '상세 항목이 저장되었습니다.';
+        } catch (error) {
+            console.error(error);
+            status.textContent = getErrorMessage(error) || '상세 항목을 저장하지 못했습니다.';
+            button.disabled = false;
+        } finally {
+            hideSavingNotice();
+        }
+    }
+
+    function getCompanyFieldDefs() {
+        return [
+            ['companyName', '회사명'],
+            ['location', '소재지'],
+            ['industry', '업종'],
+            ['type', '기업분류'],
+            ['revenue', '연매출'],
+            ['employees', '종업원'],
+            ['dormitory', '기숙사'],
+            ['military', '병역특례'],
+            ['workType', '근무형태'],
+            ['salary', '급여'],
+            ['series', '계열'],
+            ['job', '직무'],
+            ['headcount', '채용인원']
+        ];
+    }
+
+    function promptCompanyFields(current = {}) {
+        const next = {};
+        const fields = getCompanyFieldDefs();
+
+        for (const [key, label] of fields) {
+            const value = prompt(`${label}을(를) 입력하세요.`, current[key] || '');
+            if (value === null) return;
+            next[key] = value.trim();
+        }
+        return next;
+    }
+
+    async function deleteCompanyRow(button) {
+        if (!hasAdminPermission()) return;
+        if (!confirm('이 항목을 삭제할까요?')) return;
+        const tr = button.closest('tr');
+        const status = document.getElementById('uploadStatus');
+        try {
+            await deleteCompanyFromSupabase(tr?.dataset.id);
+            await loadCompanies();
+            status.textContent = '항목이 삭제되었습니다.';
+        } catch (error) {
+            console.error(error);
+            status.textContent = getErrorMessage(error) || '항목을 삭제하지 못했습니다.';
+        }
+    }
+
+    function renderTypeBadge(type) {
+        if (!type) return '';
+        const label = type === '중소기업'
+            ? '<span>중소</span><span>기업</span>'
+            : type === '중견기업'
+                ? '<span>중견</span><span>기업</span>'
+                : `<span>${escapeHtml(type)}</span>`;
+        return `<span class="badge badge-blue type-badge">${label}</span>`;
+    }
+
+    function renderMilitaryBadge(value) {
+        if (value === '가능') return '<span class="badge badge-green">가능</span>';
+        return '';
+    }
+
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function escapeAttr(value) {
+        return escapeHtml(value);
+    }
+
+    function getErrorMessage(error) {
+        if (!error) return '';
+        return error.message || String(error);
+    }
+
+    function filterTable() {
+        const nameInput = document.getElementById('searchName').value.toLowerCase();
+        const locationInput = document.getElementById('searchLocation').value.toLowerCase();
+        const typeInput = document.getElementById('filterType').value;
+        const dormitoryInput = document.getElementById('filterDormitory').value;
+        const militaryInput = document.getElementById('filterMilitary').value;
+        const workTypeInput = document.getElementById('searchWorkType').value.toLowerCase();
+        const seriesInput = document.getElementById('filterSeries').value;
+        const jobInput = document.getElementById('searchJob').value.toLowerCase();
+        
+        const table = document.getElementById('companyTable');
+        const tr = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < tr.length; i++) {
+            const cells = tr[i].getElementsByTagName('td');
+            if (cells.length < COMPANY_COLUMNS.length) continue;
+            const tdName = cells[0].textContent.toLowerCase();
+            const tdLocation = cells[1].textContent.toLowerCase();
+            const tdType = cells[3].textContent;
+            const tdDormitory = cells[6].textContent;
+            const tdMilitary = cells[7].textContent;
+            const tdWorkType = cells[8].textContent.toLowerCase();
+            const tdSeries = cells[10].textContent;
+            const tdJob = cells[11].textContent.toLowerCase();
+
+            const matchName = tdName.includes(nameInput);
+            const matchLocation = tdLocation.includes(locationInput);
+            const matchType = typeInput === "" || tdType.includes(typeInput);
+            const matchDormitory = dormitoryInput === "" || tdDormitory.includes(dormitoryInput);
+            const matchMilitary = militaryInput === "" || tdMilitary.includes(militaryInput);
+            const matchWorkType = tdWorkType.includes(workTypeInput);
+            const matchSeries = seriesInput === "" || tdSeries.includes(seriesInput);
+            const matchJob = tdJob.includes(jobInput);
+
+            if (matchName && matchLocation && matchType && matchDormitory && matchMilitary && matchWorkType && matchSeries && matchJob) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
