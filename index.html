@@ -100,9 +100,10 @@
         }
 
         table {
-            width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
+            width: 860px;
+            min-width: 100%;
             margin-top: 10px;
             font-size: 0.85em;
         }
@@ -122,71 +123,107 @@
             text-align: center;
             white-space: pre-line;
             overflow-wrap: anywhere;
+            vertical-align: middle;
         }
 
         #companyTable th:nth-child(1),
         #companyTable td:nth-child(1) {
-            width: 12%;
+            width: 30px;
         }
 
         #companyTable th:nth-child(2),
         #companyTable td:nth-child(2) {
-            width: 9%;
+            width: 110px;
         }
 
         #companyTable th:nth-child(3),
-        #companyTable td:nth-child(3) {
-            width: 9%;
-        }
-
-        #companyTable td:nth-child(3) {
-            font-size: calc(1em - 2px);
-        }
-
+        #companyTable td:nth-child(3),
         #companyTable th:nth-child(4),
-        #companyTable td:nth-child(4),
-        #companyTable th:nth-child(7),
-        #companyTable td:nth-child(7),
-        #companyTable th:nth-child(8),
-        #companyTable td:nth-child(8),
-        #companyTable th:nth-child(11),
-        #companyTable td:nth-child(11),
-        #companyTable th:nth-child(13),
-        #companyTable td:nth-child(13),
-        #companyTable th:nth-child(14),
-        #companyTable td:nth-child(14) {
-            width: 6%;
+        #companyTable td:nth-child(4) {
+            width: 40px;
         }
 
         #companyTable th:nth-child(5),
+        #companyTable td:nth-child(5) {
+            width: 110px;
+        }
+
         #companyTable td:nth-child(5),
+        #companyTable td:nth-child(14) {
+            font-size: calc(1em - 2px);
+        }
+
+        #companyTable td:nth-child(7),
+        #companyTable td:nth-child(8),
+        #companyTable td:nth-child(9),
+        #companyTable td:nth-child(11),
+        #companyTable td:nth-child(12),
+        #companyTable td:nth-child(13) {
+            font-size: calc(1em - 2px);
+        }
+
         #companyTable th:nth-child(6),
-        #companyTable td:nth-child(6),
+        #companyTable td:nth-child(6) {
+            width: 40px;
+        }
+
+        #companyTable th:nth-child(7),
+        #companyTable td:nth-child(7) {
+            width: 50px;
+        }
+
+        #companyTable th:nth-child(8),
+        #companyTable td:nth-child(8),
         #companyTable th:nth-child(9),
         #companyTable td:nth-child(9),
         #companyTable th:nth-child(10),
         #companyTable td:nth-child(10) {
-            width: 7%;
+            width: 40px;
+        }
+
+        #companyTable th:nth-child(11),
+        #companyTable td:nth-child(11) {
+            width: 50px;
         }
 
         #companyTable th:nth-child(12),
         #companyTable td:nth-child(12) {
-            width: 13%;
+            width: 70px;
         }
 
-        #companyTable td:nth-child(12) {
-            font-size: calc(1em - 2px);
+        #companyTable th:nth-child(13),
+        #companyTable td:nth-child(13) {
+            width: 40px;
+        }
+
+        #companyTable th:nth-child(14),
+        #companyTable td:nth-child(14) {
+            width: 110px;
+        }
+
+        #companyTable th:nth-child(15),
+        #companyTable td:nth-child(15) {
+            width: 50px;
+        }
+
+        .series-lines {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            white-space: nowrap;
+            word-break: keep-all;
         }
 
         tr:hover {
             background-color: #f1f5f9;
         }
 
-        #companyTable tbody tr.deadline-expired:not(.detail-open) td:first-child {
+        #companyTable tbody tr.deadline-expired:not(.detail-open) td.expired-overlay-anchor {
             position: relative;
         }
 
-        #companyTable tbody tr.deadline-expired:not(.detail-open) td:first-child::after {
+        #companyTable tbody tr.deadline-expired:not(.detail-open) td.expired-overlay-anchor::after {
             content: '제출기한 만료';
             position: absolute;
             z-index: 5;
@@ -204,6 +241,33 @@
             letter-spacing: 0.08em;
             pointer-events: none;
             white-space: nowrap;
+        }
+
+        .deadline-cell {
+            font-weight: 700;
+            font-size: calc(1em - 2px);
+        }
+
+        .deadline-highlight {
+            display: inline-block;
+            padding: 2px 4px;
+            border-radius: 8px;
+            line-height: 1.25;
+        }
+
+        .deadline-urgent {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .deadline-soon {
+            background: #ffedd5;
+            color: #9a3412;
+        }
+
+        .deadline-safe {
+            background: #dcfce7;
+            color: #166534;
         }
 
         .badge {
@@ -297,7 +361,9 @@
 
         .action-buttons {
             display: flex;
+            flex-direction: column;
             gap: 6px;
+            align-items: center;
             justify-content: center;
             white-space: nowrap;
         }
@@ -305,7 +371,7 @@
         .btn-small {
             border: 0;
             border-radius: 5px;
-            padding: 6px 8px;
+            padding: 4px 5px;
             cursor: pointer;
             font-size: 0.82em;
             font-weight: 600;
@@ -331,25 +397,52 @@
             color: #334155;
         }
 
+        #companyTable tr[data-editing="true"] td {
+            padding: 6px;
+            white-space: normal;
+            overflow-wrap: normal;
+        }
+
+        #companyTable tr[data-editing="true"] .action-buttons {
+            align-items: center;
+            min-height: 36px;
+        }
+
         .cell-edit-input,
         .cell-edit-select {
-            min-width: 110px;
-            padding: 7px;
-            font-size: 0.9em;
+            display: block;
+            width: 100%;
+            min-width: 0;
+            max-width: 100%;
+            height: 36px;
+            padding: 6px 7px;
+            font-size: 0.82em;
+            line-height: 1.25;
+            background: #fff;
         }
 
         .cell-edit-input {
-            min-height: 38px;
-            line-height: 1.35;
+            min-height: 36px;
             resize: vertical;
             white-space: pre-wrap;
+        }
+
+        .cell-edit-select {
+            appearance: auto;
+            white-space: nowrap;
         }
 
         .cell-edit-checks {
             display: flex;
             gap: 8px;
             justify-content: center;
-            min-width: 110px;
+            align-items: center;
+            min-width: 0;
+            height: 36px;
+            padding: 0 6px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: #fff;
         }
 
         .cell-edit-checks label {
@@ -388,6 +481,7 @@
             background: transparent;
             color: var(--primary-color);
             cursor: pointer;
+            font-size: calc(1em - 2px);
             font-weight: 700;
             text-decoration: underline;
             display: block;
@@ -465,8 +559,10 @@
             border: 0;
             border-radius: 0;
             margin: 0;
-            padding: 8px 10px;
+            padding: 8px;
             background: transparent;
+            max-width: 100%;
+            overflow: hidden;
         }
 
         .inline-detail-title {
@@ -479,20 +575,27 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            flex: 0 1 180px;
+            min-width: 0;
         }
 
         .inline-detail-header {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
             gap: 8px;
             margin-bottom: 8px;
+            flex-wrap: wrap;
         }
 
         .inline-detail-header-actions {
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            flex: 1 1 520px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            min-width: 0;
         }
 
         .inline-detail-officer {
@@ -510,7 +613,7 @@
         }
 
         .inline-detail-officer input {
-            width: 120px;
+            width: 86px;
             height: 24px;
             padding: 2px 6px;
             font-size: 0.9em;
@@ -520,6 +623,8 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            flex: 0 1 240px;
+            min-width: 0;
         }
 
         .inline-detail-url-field label {
@@ -530,6 +635,7 @@
         }
 
         .inline-detail-url-field input {
+            width: 130px;
             height: 26px;
             padding: 3px 7px;
             font-size: 0.85em;
@@ -592,6 +698,8 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            flex: 0 1 300px;
+            min-width: 0;
         }
 
         .request-file-upload label {
@@ -602,7 +710,7 @@
         }
 
         .request-file-upload input {
-            max-width: 190px;
+            max-width: 120px;
             padding: 4px;
             font-size: 0.82em;
         }
@@ -812,45 +920,25 @@
     <button class="filter-toggle-button" id="filterToggleButton" type="button" onclick="toggleFilterPanel()" aria-expanded="false">필터링</button>
     <div class="filter-section">
         <div class="filter-group">
-            <label>회사명 검색</label>
-            <input type="text" id="searchName" onkeyup="filterTable()" placeholder="회사명 입력...">
+            <label>통합 검색</label>
+            <input type="text" id="searchKeyword" oninput="filterTable()" placeholder="회사명, 소재지, 직무 검색...">
         </div>
         <div class="filter-group">
-            <label>소재지</label>
-            <input type="text" id="searchLocation" list="filterLocationOptions" oninput="filterTable()" placeholder="소재지 검색 또는 선택...">
-            <datalist id="filterLocationOptions"></datalist>
-        </div>
-        <div class="filter-group">
-            <label>기업분류</label>
-            <select id="filterType" onchange="filterTable()">
+            <label>필터링</label>
+            <select id="filterField" onchange="handleFilterFieldChange()">
                 <option value="">전체</option>
+                <option value="type">기업분류</option>
+                <option value="dormitory">기숙사</option>
+                <option value="military">병역특례</option>
+                <option value="workType">근무형태</option>
+                <option value="series">계열</option>
             </select>
         </div>
         <div class="filter-group">
-            <label>기숙사</label>
-            <select id="filterDormitory" onchange="filterTable()">
+            <label>세부항목</label>
+            <select id="filterValue" onchange="filterTable()" disabled>
                 <option value="">전체</option>
             </select>
-        </div>
-        <div class="filter-group">
-            <label>병역특례</label>
-            <select id="filterMilitary" onchange="filterTable()">
-                <option value="">전체</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label>근무형태</label>
-            <input type="text" id="searchWorkType" onkeyup="filterTable()" placeholder="근무형태 검색...">
-        </div>
-        <div class="filter-group">
-            <label>계열</label>
-            <select id="filterSeries" onchange="filterTable()">
-                <option value="">전체</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label>직무</label>
-            <input type="text" id="searchJob" onkeyup="filterTable()" placeholder="직무 검색...">
         </div>
     </div>
 
@@ -862,7 +950,9 @@
         <table id="companyTable">
             <thead>
                 <tr>
+                    <th class="admin-only hidden">관리</th>
                     <th>회사명</th>
+                    <th>제출기한</th>
                     <th>소재지</th>
                     <th>업종</th>
                     <th>기업분류</th>
@@ -875,11 +965,10 @@
                     <th>계열</th>
                     <th>직무</th>
                     <th>채용인원</th>
-                    <th class="admin-only hidden">관리</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td colspan="14">데이터를 불러오는 중입니다...</td></tr>
+                <tr><td colspan="15">데이터를 불러오는 중입니다...</td></tr>
             </tbody>
         </table>
     </div>
@@ -916,11 +1005,13 @@
         submissionDeadline: 'submission_deadline',
         officer: 'officer',
         documentDate: 'document_date',
+        aptitudeDate: 'aptitude_date',
         interviewDate: 'interview_date',
         notes: 'notes'
     };
     const COMPANY_COLUMNS = [
         '회사명',
+        '제출기한',
         '소재지',
         '업종',
         '기업분류',
@@ -937,9 +1028,9 @@
     const DETAIL_FIELDS = [
         'homepageUrl',
         'documents',
-        'submissionDeadline',
         'officer',
         'documentDate',
+        'aptitudeDate',
         'interviewDate',
         'notes'
     ];
@@ -950,6 +1041,13 @@
     let supabaseClient = null;
     let isAdminMode = false;
     let adminTitleClicks = [];
+    let filterOptionValues = {
+        type: [],
+        dormitory: [],
+        military: [],
+        workType: [],
+        series: []
+    };
 
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('dashboardTitle')?.addEventListener('click', handleAdminTitleClick);
@@ -979,6 +1077,10 @@
         document.body.classList.toggle('admin-mode', isAdminMode);
         document.querySelectorAll('.admin-only').forEach((element) => {
             element.classList.toggle('hidden', !isAdminMode);
+        });
+        document.querySelectorAll('#companyTable tbody tr').forEach((row) => {
+            setExpiredOverlayAnchor(row);
+            updateExpiredOverlayWidth(row);
         });
         if (!isAdminMode) {
             document.getElementById('aiCompanyPanel')?.classList.add('hidden');
@@ -1122,42 +1224,50 @@
     function buildGeminiPrompt() {
         return `첨부한 채용 정보 파일(${selectedAiFileName || '업로드한 파일'})에서 기업 채용 항목을 추출해줘.
 
-반드시 아래 JSON 배열 형식만 출력해줘. 설명, 마크다운, 코드블록은 쓰지 마.
+반드시 JSON 배열만 출력해줘. 설명, 마크다운, 코드블록은 쓰지 마.
 값을 찾을 수 없으면 빈 문자열("")로 넣어줘.
 
+출력 형식은 아래 예시와 정확히 같은 키를 사용해줘.
 [
   {
-    "회사명": "",
-    "소재지": "주소가 있으면 시/군/구까지만. 예: 경기도 평택시 충북읍 드림산단 3로 90 → 경기도 평택시",
-    "업종": "",
-    "기업분류": "대기업/중견기업/중소기업 중 하나 또는 빈 문자열",
-    "연매출": "",
-    "종업원": "",
-    "기숙사": "",
-    "병역특례": "가능/불가능 중 하나 또는 빈 문자열",
-    "근무형태": "",
-    "급여": "",
-    "계열": "전기/기계 중 하나 이상 또는 빈 문자열",
-    "직무": "",
-    "채용인원": "",
+    "회사명": "퀄퀄맥스 주식회사",
+    "제출기한": "2026.\\n05.21",
+    "소재지": "경기도\\n화성",
+    "업종": "반도체시설관련 부품제조",
+    "기업분류": "중소기업",
+    "연매출": "206억",
+    "종업원": "128명",
+    "기숙사": "O\\n(사외)",
+    "병역특례": "가능",
+    "근무형태": "주간근무",
+    "급여": "시급:\\n10,320",
+    "계열": "기계",
+    "직무": "CNC자동선반업무(3) 지그 가공 및 세팅(1)",
+    "채용인원": "4(남)",
     "회사 홈페이지 URL": "",
-    "필요서류": "",
-    "제출기한": "",
-    "담당 산학협력지원관": "",
-    "서류전형 일자": "",
-    "면접일정 일자": "",
-    "특이사항": ""
+    "필요서류": "자기소개서, 이력서, 생활기록부",
+    "담당 산학협력지원관": "강수진",
+    "서류전형 발표": "2026.05.27",
+    "인적성검사": "2026.05.30",
+    "면접일정 일자": "2026.06.04",
+    "특이사항": "병역특례가능(컴퓨터응용선반.밀링기능사 등), 주간근무, 기숙사제공\\n청년내일채움공제 적용, 발명현장공장으로 젊은층(20~30대) 근무환경 좋음"
   }
 ]
 
-주의사항:
+추출 규칙:
 - 여러 회사가 있으면 객체를 여러 개 만들어줘.
-- 표에 있는 내용을 최대한 그대로 옮겨줘.
 - 회사명은 반드시 채워줘.
-- 소재지는 전체 주소를 쓰지 말고 시/군/구까지만 써줘. 예: "경기도 평택시 충북읍 드림산단 3로 90"이면 "경기도 평택시".
-- 계열은 직무/전공/모집분야를 보고 전기, 기계 중 해당되는 값을 모두 적어줘. 둘 다 해당되면 "전기, 기계"로 적고, 판단이 어려우면 빈 문자열로 둬.
-- 회사 홈페이지 URL, 필요서류, 제출기한, 담당 산학협력지원관, 서류전형 일자, 면접일정 일자, 특이사항도 있으면 추출해줘.
-- 숫자 단위(억, 명, 원, 만원)는 원문 표현을 유지해줘.`;
+- 소재지는 전체 주소를 쓰지 말고 시/군/구까지만 써줘.
+  예: "경기도 화성시 동탄면 ..." -> "경기도 화성"
+  예: "충남 천안시 서북구 ..." -> "충남 천안"
+  예: "부산광역시 강서구 ..." -> "부산광역시 강서구"
+- 기숙사는 원문 표기를 최대한 그대로 적어줘. 예: "O(사외)", "O (사내)", "무", "기숙사 제공"
+- 병역특례는 가능/불가능 중 하나로 적어줘. 산업기능요원, 보충역, 병역특례 가능 문구가 있으면 "가능".
+- 계열은 직무/전공/모집분야를 보고 폴리와 정밀, 금형은 기계이고, 메카와 로봇은 전기야. 해당되는 값을 모두 적어줘. 둘 다 해당되면 "전기, 기계"로 적고, 판단이 어려우면 빈 문자열로 둬.
+- 제출기한, 서류전형 발표, 인적성검사, 면접일정 일자는 가능하면 YYYY.MM.DD 형식으로 통일해줘.
+- 필요서류는 쉼표로 구분해줘. 예: "자기소개서, 이력서, 생활기록부"
+- 급여는 원문 단위를 유지해줘. 예: "시급: 10,320", "연봉 3,200만원"
+- 직무와 특이사항은 표에 보이는 내용을 최대한 그대로 옮겨줘.`;
     }
 
     async function copyGeminiPrompt() {
@@ -1236,7 +1346,7 @@
             type: getAiField(row, '기업분류', 'type'),
             revenue: getAiField(row, '연매출', 'revenue'),
             employees: getAiField(row, '종업원', 'employees'),
-            dormitory: getAiField(row, '기숙사', 'dormitory'),
+            dormitory: normalizeDormitory(getAiField(row, '기숙사', 'dormitory')),
             military: getAiField(row, '병역특례', 'military'),
             workType: getAiField(row, '근무형태', 'workType'),
             salary: getAiField(row, '급여', 'salary'),
@@ -1247,7 +1357,8 @@
             documents: getAiField(row, '필요서류', 'documents'),
             submissionDeadline: getAiField(row, '제출기한', '서류제출기한', 'submissionDeadline'),
             officer: getAiField(row, '담당 산학협력지원관', '담당자', '산학협력지원관', 'officer'),
-            documentDate: getAiField(row, '서류전형 일자', '서류전형일', 'documentDate'),
+            documentDate: getAiField(row, '서류전형 발표', '서류전형 일자', '서류전형일', 'documentDate'),
+            aptitudeDate: getAiField(row, '인적성검사', '인적성 검사', 'aptitudeDate'),
             interviewDate: getAiField(row, '면접일정 일자', '면접일정', '면접일', 'interviewDate'),
             notes: getAiField(row, '특이사항', '비고', 'notes')
         };
@@ -1307,6 +1418,7 @@
             submissionDeadline,
             officer: '',
             documentDate: '',
+            aptitudeDate: '',
             interviewDate: '',
             notes: ''
         };
@@ -1345,12 +1457,15 @@
     }
 
     function getDormitory(text) {
-        if (/기숙사.{0,12}(유|있|제공|사내|사외)/.test(text)) {
-            const match = text.match(/유\s*\((?:사내|사외)\)/);
-            return match ? match[0].replace(/\s+/g, '') : '유';
-        }
-        if (/기숙사.{0,12}(무|없|미제공)/.test(text)) return '무';
-        return '';
+        const valueMatch = text.match(/(?:기숙사|숙소)\s*[:：]?\s*(O\s*\([^)]*\)|O|X|○\s*\([^)]*\)|○|◯\s*\([^)]*\)|◯|유\s*\([^)]*\)|유|무|있음|없음|제공|미제공|불가)/i);
+        if (valueMatch) return cleanupField(valueMatch[1]);
+
+        const phraseMatch = text.match(/(?:기숙사|숙소)\s*(?:제공|있음|없음|미제공|불가|가능)/i);
+        return phraseMatch ? cleanupField(phraseMatch[0]) : '';
+    }
+
+    function normalizeDormitory(value) {
+        return cleanupField(value);
     }
 
     function cleanupField(value) {
@@ -1395,6 +1510,7 @@
             ...row,
             location: normalizeLocation(row.location || row['소재지'] || row.address || ''),
             series: normalizeSeries(row.series || row['계열'] || row.major || ''),
+            dormitory: normalizeDormitory(row.dormitory || row['기숙사'] || ''),
             homepageUrl: cleanupField(row.homepageUrl || row['회사 홈페이지 URL'] || row['홈페이지 URL'] || row['홈페이지'] || ''),
             requestFileUrl: cleanupField(row.requestFileUrl || row['채용요청서 URL'] || row['채용요청서'] || ''),
             requestFilePath: cleanupField(row.requestFilePath || row['채용요청서 경로'] || ''),
@@ -1402,7 +1518,8 @@
             documents: cleanupField(row.documents || row['필요서류'] || ''),
             submissionDeadline: cleanupField(row.submissionDeadline || row['제출기한'] || row['서류제출기한'] || ''),
             officer: cleanupField(row.officer || row['담당 산학협력지원관'] || row['담당자'] || ''),
-            documentDate: cleanupField(row.documentDate || row['서류전형 일자'] || row['서류전형일'] || ''),
+            documentDate: cleanupField(row.documentDate || row['서류전형 발표'] || row['서류전형 일자'] || row['서류전형일'] || ''),
+            aptitudeDate: cleanupField(row.aptitudeDate || row['인적성검사'] || row['인적성 검사'] || ''),
             interviewDate: cleanupField(row.interviewDate || row['면접일정 일자'] || row['면접일정'] || ''),
             notes: cleanupMultilineField(row.notes || row['특이사항'] || row['비고'] || '')
         };
@@ -1421,7 +1538,7 @@
         rows = rows.map(normalizeCompanyRow);
         updateFilterOptions(rows);
         if (!rows.length) {
-            tbody.innerHTML = '<tr><td colspan="14">등록된 기업 항목이 없습니다.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="15">등록된 기업 항목이 없습니다.</td></tr>';
             return;
         }
         rows.forEach((row) => {
@@ -1433,11 +1550,14 @@
     }
 
     function updateFilterOptions(rows) {
-        setDatalistOptions('filterLocationOptions', getUniqueValues(rows, 'location'));
-        setSelectOptions('filterType', getUniqueValues(rows, 'type'));
-        setSelectOptions('filterDormitory', getUniqueValues(rows, 'dormitory'));
-        setSelectOptions('filterMilitary', getUniqueValues(rows, 'military'));
-        setSelectOptions('filterSeries', getUniqueSeriesValues(rows));
+        filterOptionValues = {
+            type: getUniqueValues(rows, 'type'),
+            dormitory: getUniqueValues(rows, 'dormitory'),
+            military: getUniqueValues(rows, 'military'),
+            workType: getUniqueValues(rows, 'workType'),
+            series: getUniqueSeriesValues(rows)
+        };
+        updateFilterValueOptions();
     }
 
     function getUniqueValues(rows, field) {
@@ -1456,6 +1576,24 @@
         select.innerHTML = '<option value="">전체</option>'
             + values.map((value) => `<option value="${escapeAttr(value)}">${escapeHtml(value)}</option>`).join('');
         select.value = values.includes(selected) ? selected : '';
+    }
+
+    function handleFilterFieldChange() {
+        updateFilterValueOptions();
+        filterTable();
+    }
+
+    function updateFilterValueOptions() {
+        const fieldSelect = document.getElementById('filterField');
+        const valueSelect = document.getElementById('filterValue');
+        if (!fieldSelect || !valueSelect) return;
+        const field = fieldSelect.value;
+        const values = field ? (filterOptionValues[field] || []) : [];
+        const selected = valueSelect.value;
+        valueSelect.disabled = !field;
+        valueSelect.innerHTML = '<option value="">전체</option>'
+            + values.map((value) => `<option value="${escapeAttr(value)}">${escapeHtml(value)}</option>`).join('');
+        valueSelect.value = values.includes(selected) ? selected : '';
     }
 
     function setDatalistOptions(datalistId, values) {
@@ -1481,8 +1619,11 @@
         delete tr.dataset.originalRow;
         tr.classList.toggle('deadline-expired', isSubmissionDeadlineExpired(row.submissionDeadline));
         tr.classList.remove('detail-open');
+        const adminCellClass = `admin-only ${isAdminMode ? '' : 'hidden'}`;
         tr.innerHTML = `
+            <td class="${adminCellClass}">${renderActionButtons()}</td>
             <td><button class="company-name-button" type="button" onclick="showCompanyDetail(this)">${escapeHtml(row.companyName)}</button></td>
+            <td class="deadline-cell">${renderSubmissionDeadlineValue(row.submissionDeadline)}</td>
             <td>${escapeHtml(normalizeLocation(row.location))}</td>
             <td>${escapeHtml(row.industry)}</td>
             <td>${renderTypeBadge(row.type)}</td>
@@ -1492,11 +1633,11 @@
             <td>${renderMilitaryBadge(row.military)}</td>
             <td>${escapeHtml(row.workType)}</td>
             <td>${escapeHtml(row.salary)}</td>
-            <td>${escapeHtml(row.series)}</td>
+            <td>${renderSeriesValue(row.series)}</td>
             <td>${escapeHtml(row.job)}</td>
             <td>${escapeHtml(row.headcount)}</td>
-            <td class="admin-only ${isAdminMode ? '' : 'hidden'}">${renderActionButtons()}</td>
         `;
+        setExpiredOverlayAnchor(tr);
         requestAnimationFrame(() => updateExpiredOverlayWidth(tr));
         requestAnimationFrame(() => fitCompanyNameButton(tr.querySelector('.company-name-button')));
     }
@@ -1510,6 +1651,22 @@
         `;
     }
 
+    function renderSeriesValue(value) {
+        const items = cleanupField(value)
+            .split(',')
+            .map((item) => item.trim())
+            .filter(Boolean);
+        if (!items.length) return '';
+        return `<span class="series-lines">${items.map((item) => `<span>${escapeHtml(item)}</span>`).join('')}</span>`;
+    }
+
+    function renderSubmissionDeadlineValue(value) {
+        const text = cleanupField(value);
+        if (!text) return '';
+        const toneClass = getSubmissionDeadlineToneClass(text);
+        return `<span class="deadline-highlight ${toneClass}">${escapeHtml(text)}</span>`;
+    }
+
     function isSubmissionDeadlineExpired(value) {
         const deadline = parseKoreanDate(value);
         if (!deadline) return false;
@@ -1517,6 +1674,19 @@
         today.setHours(0, 0, 0, 0);
         deadline.setHours(23, 59, 59, 999);
         return deadline < today;
+    }
+
+    function getSubmissionDeadlineToneClass(value) {
+        const deadline = parseKoreanDate(value);
+        if (!deadline) return '';
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        deadline.setHours(0, 0, 0, 0);
+        const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
+        if (daysLeft < 0) return '';
+        if (daysLeft <= 1) return 'deadline-urgent';
+        if (daysLeft <= 7) return 'deadline-soon';
+        return 'deadline-safe';
     }
 
     function parseKoreanDate(value) {
@@ -1539,15 +1709,27 @@
         tr.style.setProperty('--expired-overlay-width', `${tr.getBoundingClientRect().width}px`);
     }
 
+    function setExpiredOverlayAnchor(tr) {
+        if (!tr || tr.classList.contains('company-detail-row')) return;
+        const cells = Array.from(tr.children);
+        cells.forEach((cell) => cell.classList.remove('expired-overlay-anchor'));
+        const hasAdminCell = cells[0]?.classList.contains('admin-only');
+        const anchor = isAdminMode && hasAdminCell && !cells[0].classList.contains('hidden')
+            ? cells[0]
+            : cells[hasAdminCell ? 1 : 0];
+        anchor?.classList.add('expired-overlay-anchor');
+    }
+
     function normalizeExistingRows() {
         document.querySelectorAll('#companyTable tbody tr').forEach((tr) => {
-            if (tr.children.length < COMPANY_COLUMNS.length + 1) {
+            if (!tr.children[0]?.classList.contains('admin-only')) {
                 const td = document.createElement('td');
                 td.className = 'admin-only';
                 td.innerHTML = renderActionButtons();
-                tr.appendChild(td);
+                tr.prepend(td);
             }
-            tr.children[COMPANY_COLUMNS.length]?.classList.toggle('hidden', !isAdminMode);
+            tr.children[0]?.classList.toggle('hidden', !isAdminMode);
+            setExpiredOverlayAnchor(tr);
         });
     }
 
@@ -1569,28 +1751,31 @@
     function getCompanyRowData(tr) {
         const cells = Array.from(tr.children);
         const row = tr.__companyRow || {};
+        const offset = cells[0]?.classList.contains('admin-only') ? 1 : 0;
+        const cellText = (index) => cells[index + offset]?.textContent.trim() || '';
         return {
-            companyName: cells[0]?.textContent.trim() || '',
-            location: cells[1]?.textContent.trim() || '',
-            industry: cells[2]?.textContent.trim() || '',
-            type: cells[3]?.textContent.trim() || '',
-            revenue: cells[4]?.textContent.trim() || '',
-            employees: cells[5]?.textContent.trim() || '',
-            dormitory: cells[6]?.textContent.trim() || '',
-            military: cells[7]?.textContent.trim() || '',
-            workType: cells[8]?.textContent.trim() || '',
-            salary: cells[9]?.textContent.trim() || '',
-            series: cells[10]?.textContent.trim() || '',
-            job: cells[11]?.textContent.trim() || '',
-            headcount: cells[12]?.textContent.trim() || '',
+            companyName: cellText(0),
+            submissionDeadline: row.submissionDeadline || cellText(1),
+            location: cellText(2),
+            industry: cellText(3),
+            type: cellText(4),
+            revenue: cellText(5),
+            employees: cellText(6),
+            dormitory: cellText(7),
+            military: cellText(8),
+            workType: cellText(9),
+            salary: cellText(10),
+            series: row.series || cellText(11),
+            job: cellText(12),
+            headcount: cellText(13),
             homepageUrl: row.homepageUrl || '',
             requestFileUrl: row.requestFileUrl || '',
             requestFilePath: row.requestFilePath || '',
             requestFileName: row.requestFileName || '',
             documents: row.documents || '',
-            submissionDeadline: row.submissionDeadline || '',
             officer: row.officer || '',
             documentDate: row.documentDate || '',
+            aptitudeDate: row.aptitudeDate || '',
             interviewDate: row.interviewDate || '',
             notes: row.notes || ''
         };
@@ -1608,11 +1793,12 @@
         tr.dataset.editing = 'true';
         tr.dataset.originalRow = JSON.stringify(current);
         const fields = getCompanyFieldDefs();
+        const offset = tr.children[0]?.classList.contains('admin-only') ? 1 : 0;
 
         fields.forEach(([key], index) => {
-            tr.children[index].innerHTML = renderEditControl(key, current[key] || '');
+            tr.children[index + offset].innerHTML = renderEditControl(key, current[key] || '');
         });
-        tr.children[COMPANY_COLUMNS.length].innerHTML = `
+        tr.children[0].innerHTML = `
             <div class="action-buttons">
                 <button class="btn-small btn-save" type="button" onclick="saveEditedCompanyRow(this)">저장</button>
                 <button class="btn-small btn-cancel" type="button" onclick="cancelCompanyRowEdit(this)">취소</button>
@@ -1774,12 +1960,12 @@
         const documentsControl = isAdminMode
             ? fieldBody(`<textarea rows="1" data-detail-field="documents">${escapeHtml(row.documents || '')}</textarea>`)
             : readonlyValue(row.documents);
-        const submissionDeadlineControl = isAdminMode
-            ? fieldBody(`<input data-detail-field="submissionDeadline" value="${escapeAttr(row.submissionDeadline || '')}" placeholder="예: 2026.05.20">`)
-            : readonlyValue(row.submissionDeadline);
         const documentDateControl = isAdminMode
             ? fieldBody(`<input data-detail-field="documentDate" value="${escapeAttr(row.documentDate || '')}" placeholder="예: 2026.05.20">`)
             : readonlyValue(row.documentDate);
+        const aptitudeDateControl = isAdminMode
+            ? fieldBody(`<input data-detail-field="aptitudeDate" value="${escapeAttr(row.aptitudeDate || '')}" placeholder="예: 2026.05.24">`)
+            : readonlyValue(row.aptitudeDate);
         const interviewDateControl = isAdminMode
             ? fieldBody(`<input data-detail-field="interviewDate" value="${escapeAttr(row.interviewDate || '')}" placeholder="예: 2026.05.27">`)
             : readonlyValue(row.interviewDate);
@@ -1795,9 +1981,9 @@
                     <div class="inline-detail-header">
                         <div class="inline-detail-title-group">
                             <div class="inline-detail-title">${escapeHtml(row.companyName || '기업')} 상세</div>
-                            ${!isAdminMode ? officerControl : ''}
                         </div>
                         <div class="inline-detail-header-actions">
+                            ${!isAdminMode ? officerControl : ''}
                             ${!isAdminMode ? homepageLinkControl : ''}
                             ${requestFileUploadControl}
                             ${homepageControl}
@@ -1811,12 +1997,12 @@
                             ${documentsControl}
                         </div>
                         <div class="inline-detail-field span-4">
-                            <label>제출기한</label>
-                            ${submissionDeadlineControl}
+                            <label>서류전형 발표</label>
+                            ${documentDateControl}
                         </div>
                         <div class="inline-detail-field span-4">
-                            <label>서류전형 일자</label>
-                            ${documentDateControl}
+                            <label>인적성검사</label>
+                            ${aptitudeDateControl}
                         </div>
                         <div class="inline-detail-field span-4">
                             <label>면접 일자</label>
@@ -2012,9 +2198,9 @@
             ...original,
             homepageUrl: detailRow.querySelector('[data-detail-field="homepageUrl"]').value,
             documents: detailRow.querySelector('[data-detail-field="documents"]').value,
-            submissionDeadline: detailRow.querySelector('[data-detail-field="submissionDeadline"]').value,
             officer: detailRow.querySelector('[data-detail-field="officer"]').value,
             documentDate: detailRow.querySelector('[data-detail-field="documentDate"]').value,
+            aptitudeDate: detailRow.querySelector('[data-detail-field="aptitudeDate"]').value,
             interviewDate: detailRow.querySelector('[data-detail-field="interviewDate"]').value,
             notes: detailRow.querySelector('[data-detail-field="notes"]').value
         });
@@ -2047,6 +2233,7 @@
     function getCompanyFieldDefs() {
         return [
             ['companyName', '회사명'],
+            ['submissionDeadline', '제출기한'],
             ['location', '소재지'],
             ['industry', '업종'],
             ['type', '기업분류'],
@@ -2126,6 +2313,9 @@
         if (/relation .* does not exist|Could not find the table/i.test(message)) {
             return 'Supabase에 companies 테이블이 없습니다. CMS_supabase_schema.sql을 SQL Editor에서 먼저 실행해주세요.';
         }
+        if (/Could not find .* column|column .* does not exist|schema cache/i.test(message)) {
+            return 'Supabase companies 테이블 컬럼이 최신 코드와 다릅니다. CMS_supabase_schema.sql을 SQL Editor에서 다시 실행해주세요.';
+        }
         if (/permission denied|row-level security|violates row-level security/i.test(message)) {
             return 'Supabase RLS 정책 때문에 저장할 수 없습니다. CMS_supabase_schema.sql의 정책을 실행했는지 확인해주세요.';
         }
@@ -2136,14 +2326,9 @@
     }
 
     function filterTable() {
-        const nameInput = document.getElementById('searchName').value.toLowerCase();
-        const locationInput = document.getElementById('searchLocation').value.toLowerCase();
-        const typeInput = document.getElementById('filterType').value;
-        const dormitoryInput = document.getElementById('filterDormitory').value;
-        const militaryInput = document.getElementById('filterMilitary').value;
-        const workTypeInput = document.getElementById('searchWorkType').value.toLowerCase();
-        const seriesInput = document.getElementById('filterSeries').value;
-        const jobInput = document.getElementById('searchJob').value.toLowerCase();
+        const keywordInput = document.getElementById('searchKeyword').value.toLowerCase();
+        const filterField = document.getElementById('filterField').value;
+        const filterValue = document.getElementById('filterValue').value;
         
         const table = document.getElementById('companyTable');
         const tr = table.getElementsByTagName('tr');
@@ -2152,30 +2337,39 @@
             const cells = tr[i].getElementsByTagName('td');
             if (cells.length < COMPANY_COLUMNS.length) continue;
             const row = tr[i].__companyRow || {};
-            const tdName = cells[0].textContent.toLowerCase();
-            const tdLocation = cells[1].textContent.toLowerCase();
-            const tdType = row.type || cells[3].textContent;
-            const tdDormitory = row.dormitory || cells[6].textContent;
-            const tdMilitary = row.military || cells[7].textContent;
-            const tdWorkType = cells[8].textContent.toLowerCase();
-            const tdSeries = row.series || cells[10].textContent;
-            const tdJob = cells[11].textContent.toLowerCase();
+            const offset = cells[0]?.classList.contains('admin-only') ? 1 : 0;
+            const cellText = (index) => cells[index + offset]?.textContent || '';
+            const tdName = cellText(0).toLowerCase();
+            const tdLocation = cellText(2).toLowerCase();
+            const tdType = row.type || cellText(4);
+            const tdDormitory = row.dormitory || cellText(7);
+            const tdMilitary = row.military || cellText(8);
+            const tdWorkType = cellText(9);
+            const tdSeries = row.series || cellText(11);
+            const tdJob = cellText(12).toLowerCase();
+            const combinedSearchText = `${tdName} ${tdLocation} ${tdJob}`;
 
-            const matchName = tdName.includes(nameInput);
-            const matchLocation = tdLocation.includes(locationInput);
-            const matchType = typeInput === "" || tdType === typeInput;
-            const matchDormitory = dormitoryInput === "" || tdDormitory === dormitoryInput;
-            const matchMilitary = militaryInput === "" || tdMilitary === militaryInput;
-            const matchWorkType = tdWorkType.includes(workTypeInput);
-            const matchSeries = seriesInput === "" || tdSeries.includes(seriesInput);
-            const matchJob = tdJob.includes(jobInput);
+            const matchKeyword = keywordInput === "" || combinedSearchText.includes(keywordInput);
+            const matchSelectedFilter = matchesSelectedFilter(filterField, filterValue, {
+                type: tdType,
+                dormitory: tdDormitory,
+                military: tdMilitary,
+                workType: tdWorkType,
+                series: tdSeries
+            });
 
-            if (matchName && matchLocation && matchType && matchDormitory && matchMilitary && matchWorkType && matchSeries && matchJob) {
+            if (matchKeyword && matchSelectedFilter) {
                 tr[i].style.display = "";
             } else {
                 tr[i].style.display = "none";
             }
         }
+    }
+
+    function matchesSelectedFilter(field, value, rowValues) {
+        if (!field || !value) return true;
+        if (field === 'series') return cleanupField(rowValues.series).includes(value);
+        return cleanupField(rowValues[field]) === value;
     }
 </script>
 
