@@ -525,7 +525,7 @@
         </div>
         <textarea id="aiResultText" placeholder="Gemini 답변(JSON)을 여기에 붙여넣으세요."></textarea>
         <div class="ai-actions">
-            <button class="primary-button" type="button" onclick="addAiResultRows()">붙여넣은 결과 항목 추가</button>
+            <button class="primary-button" type="button" onclick="addAiResultRows(this)">붙여넣은 결과 항목 추가</button>
         </div>
     </div>
 
@@ -615,7 +615,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    const SUPABASE_URL = 'https://ukjobivzdfqqyfgedgca.supabase.co/rest/v1/';
+    const SUPABASE_URL = 'https://ukjobivzdfqqyfgedgca.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_NWVUo7FNImZX7DkpuZAt0A_d1YbCOUp';
     const SUPABASE_TABLE = 'companies';
     const SUPABASE_COLUMN_MAP = {
@@ -727,9 +727,13 @@
             throw new Error('Supabase URL과 anon key를 먼저 설정해주세요.');
         }
         if (!supabaseClient) {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            supabaseClient = window.supabase.createClient(normalizeSupabaseProjectUrl(SUPABASE_URL), SUPABASE_ANON_KEY);
         }
         return supabaseClient;
+    }
+
+    function normalizeSupabaseProjectUrl(value) {
+        return String(value || '').replace(/\/rest\/v1\/?$/i, '').replace(/\/+$/, '');
     }
 
     function toggleAiCompanyPanel() {
@@ -880,10 +884,15 @@
         window.open('https://gemini.google.com/', '_blank', 'noopener');
     }
 
-    async function addAiResultRows() {
+    async function addAiResultRows(button) {
         if (!hasAdminPermission()) return;
+        if (!isSupabaseConfigured()) {
+            document.getElementById('uploadStatus').textContent = 'Supabase 설정을 먼저 완료해주세요.';
+            return;
+        }
         const input = document.getElementById('aiResultText');
         const status = document.getElementById('uploadStatus');
+        if (button) button.disabled = true;
         try {
             const rows = parseAiRows(input.value);
             if (!rows.length) {
@@ -891,12 +900,15 @@
                 return;
             }
 
+            status.textContent = '항목을 Supabase에 추가하는 중입니다...';
             await saveCompanyRows(rows);
             input.value = '';
             status.textContent = `${rows.length}개 항목이 추가되었습니다.`;
         } catch (error) {
             console.error(error);
-            status.textContent = error.message || 'Gemini 답변을 읽지 못했습니다.';
+            status.textContent = getErrorMessage(error) || 'Gemini 답변을 읽지 못했습니다.';
+        } finally {
+            if (button) button.disabled = false;
         }
     }
 
@@ -1536,7 +1548,17 @@
 
     function getErrorMessage(error) {
         if (!error) return '';
-        return error.message || String(error);
+        const message = error.message || String(error);
+        if (/Failed to fetch|NetworkError/i.test(message)) {
+            return 'Supabase 연결에 실패했습니다. URL에서 /rest/v1/을 빼고 프로젝트 URL만 입력했는지 확인해주세요.';
+        }
+        if (/relation .* does not exist|Could not find the table/i.test(message)) {
+            return 'Supabase에 companies 테이블이 없습니다. CMS_supabase_schema.sql을 SQL Editor에서 먼저 실행해주세요.';
+        }
+        if (/permission denied|row-level security|violates row-level security/i.test(message)) {
+            return 'Supabase RLS 정책 때문에 저장할 수 없습니다. CMS_supabase_schema.sql의 정책을 실행했는지 확인해주세요.';
+        }
+        return message;
     }
 
     function filterTable() {
