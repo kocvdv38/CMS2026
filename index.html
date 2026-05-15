@@ -214,17 +214,53 @@
         }
 
         @media (min-width: 641px) {
+            /* 관리자 수정 모드: 각 열 가로 +10px, 테이블 전체 폭 동기 */
             #companyTable.row-editing {
-                width: 908px;
+                width: 1050px;
+            }
+
+            #companyTable.row-editing th:nth-child(1),
+            #companyTable.row-editing td:nth-child(1) {
+                width: 40px;
+            }
+
+            #companyTable.row-editing th:nth-child(2),
+            #companyTable.row-editing td:nth-child(2) {
+                width: 120px;
+            }
+
+            #companyTable.row-editing th:nth-child(3),
+            #companyTable.row-editing td:nth-child(3) {
+                width: 80px;
+            }
+
+            #companyTable.row-editing th:nth-child(4),
+            #companyTable.row-editing td:nth-child(4) {
+                width: 50px;
+            }
+
+            #companyTable.row-editing th:nth-child(5),
+            #companyTable.row-editing td:nth-child(5) {
+                width: 120px;
             }
 
             #companyTable.row-editing th:nth-child(6),
-            #companyTable.row-editing td:nth-child(6),
+            #companyTable.row-editing td:nth-child(6) {
+                width: 60px;
+            }
+
+            #companyTable.row-editing th:nth-child(7),
+            #companyTable.row-editing td:nth-child(7) {
+                width: 60px;
+            }
+
+            #companyTable.row-editing th:nth-child(8),
+            #companyTable.row-editing td:nth-child(8),
+            #companyTable.row-editing th:nth-child(9),
+            #companyTable.row-editing td:nth-child(9),
             #companyTable.row-editing th:nth-child(10),
-            #companyTable.row-editing td:nth-child(10),
-            #companyTable.row-editing th:nth-child(13),
-            #companyTable.row-editing td:nth-child(13) {
-                width: 48px;
+            #companyTable.row-editing td:nth-child(10) {
+                width: 50px;
             }
 
             #companyTable.row-editing th:nth-child(11),
@@ -234,7 +270,45 @@
 
             #companyTable.row-editing th:nth-child(12),
             #companyTable.row-editing td:nth-child(12) {
-                width: 84px;
+                width: 80px;
+            }
+
+            #companyTable.row-editing th:nth-child(13),
+            #companyTable.row-editing td:nth-child(13) {
+                width: 50px;
+            }
+
+            #companyTable.row-editing th:nth-child(14),
+            #companyTable.row-editing td:nth-child(14) {
+                width: 120px;
+            }
+
+            #companyTable.row-editing th:nth-child(15),
+            #companyTable.row-editing td:nth-child(15) {
+                width: 60px;
+            }
+
+            #companyTable.row-editing tr[data-editing="true"] td {
+                padding-top: 11px;
+                padding-bottom: 11px;
+            }
+
+            #companyTable.row-editing tr[data-editing="true"] .cell-edit-input,
+            #companyTable.row-editing tr[data-editing="true"] .cell-edit-select {
+                height: 46px;
+                min-height: 46px;
+            }
+
+            #companyTable.row-editing tr[data-editing="true"] .cell-edit-input {
+                min-height: 46px;
+            }
+
+            #companyTable.row-editing tr[data-editing="true"] .cell-edit-checks {
+                min-height: 46px;
+            }
+
+            #companyTable.row-editing tr[data-editing="true"] .action-buttons {
+                min-height: 46px;
             }
         }
 
@@ -493,6 +567,43 @@
             width: auto;
         }
 
+        .cell-edit-deadline-wrap {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: stretch;
+            min-width: 0;
+            text-align: left;
+        }
+
+        .cell-edit-deadline-date {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            max-width: 100%;
+            box-sizing: border-box;
+            height: 34px;
+            padding: 4px 6px;
+            font-size: 0.8em;
+            line-height: 1.2;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        .cell-edit-deadline-store {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
         .saving-notice {
             position: fixed;
             top: 22px;
@@ -633,6 +744,11 @@
             flex-wrap: wrap;
             justify-content: flex-end;
             min-width: 0;
+        }
+
+        /* 관리자 행 수정 중 상세 헤더(채용요청서·URL·담당·닫기 등)를 오른쪽에서 띄워 왼쪽으로 배치 */
+        #companyTable.row-editing .company-detail-row .inline-detail-header-actions {
+            margin-right: 210px;
         }
 
         .inline-detail-officer {
@@ -1811,6 +1927,33 @@
             : null;
     }
 
+    function submissionDeadlineToDateInputValue(text) {
+        const d = parseKoreanDate(text);
+        if (!d) return '';
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    }
+
+    function formatSubmissionDeadlineDisplay(ymd) {
+        const m = String(ymd || '').trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (!m) return '';
+        return `${m[1]}.\n${m[2]}.${m[3]}`;
+    }
+
+    function syncSubmissionDeadlineFromPicker(dateInput) {
+        const wrap = dateInput.closest('.cell-edit-deadline-wrap');
+        if (!wrap) return;
+        const store = wrap.querySelector('textarea[data-edit-field="submissionDeadline"]');
+        if (!dateInput.value) {
+            if (store) store.value = '';
+            return;
+        }
+        const formatted = formatSubmissionDeadlineDisplay(dateInput.value);
+        if (store) store.value = formatted;
+    }
+
     function updateExpiredOverlayWidth(tr) {
         if (!tr?.classList?.contains('deadline-expired')) return;
         tr.style.setProperty('--expired-overlay-width', `${tr.getBoundingClientRect().width}px`);
@@ -1891,8 +2034,13 @@
     async function editCompanyRow(button) {
         if (!hasAdminPermission()) return;
         const tr = button.closest('tr');
-      if (!tr || tr.dataset.editing === 'true') return;
-      enterCompanyRowEditMode(tr);
+        if (!tr || tr.dataset.editing === 'true') return;
+        const detailOpenHere = tr.nextElementSibling?.classList.contains('company-detail-row');
+        if (!detailOpenHere) {
+            const nameBtn = tr.querySelector('.company-name-button');
+            if (nameBtn) showCompanyDetail(nameBtn);
+        }
+        enterCompanyRowEditMode(tr);
     }
 
     function enterCompanyRowEditMode(tr) {
@@ -1924,6 +2072,17 @@
         if (key === 'series') {
             return renderSeriesControl(value);
         }
+        if (key === 'submissionDeadline') {
+            const raw = String(value || '').replace(/\r\n/g, '\n').trim();
+            const iso = submissionDeadlineToDateInputValue(raw);
+            const storeValue = iso ? formatSubmissionDeadlineDisplay(iso) : raw;
+            return `
+                <div class="cell-edit-deadline-wrap">
+                    <input type="date" class="cell-edit-deadline-date" value="${escapeAttr(iso)}" onchange="syncSubmissionDeadlineFromPicker(this)" title="제출기한">
+                    <textarea class="cell-edit-deadline-store" data-edit-field="submissionDeadline" rows="2" aria-label="제출기한 저장값">${escapeHtml(storeValue)}</textarea>
+                </div>
+            `;
+        }
         const rows = key === 'location' ? 3 : 2;
         return `<textarea class="cell-edit-input" rows="${rows}" data-edit-field="${key}">${escapeHtml(value)}</textarea>`;
     }
@@ -1950,15 +2109,46 @@
         `;
     }
 
+    function getEditableDetailPatchFromDetailRow(detailRow) {
+        if (!detailRow?.classList.contains('company-detail-row')) return null;
+        const homepageUrlEl = detailRow.querySelector('[data-detail-field="homepageUrl"]');
+        if (!homepageUrlEl) return null;
+        return {
+            homepageUrl: homepageUrlEl.value,
+            documents: detailRow.querySelector('[data-detail-field="documents"]')?.value ?? '',
+            officer: detailRow.querySelector('[data-detail-field="officer"]')?.value ?? '',
+            documentDate: detailRow.querySelector('[data-detail-field="documentDate"]')?.value ?? '',
+            aptitudeDate: detailRow.querySelector('[data-detail-field="aptitudeDate"]')?.value ?? '',
+            interviewDate: detailRow.querySelector('[data-detail-field="interviewDate"]')?.value ?? '',
+            notes: detailRow.querySelector('[data-detail-field="notes"]')?.value ?? ''
+        };
+    }
+
+    async function mergeOpenDetailRowIntoNormalizedCompany(tr, baseNext) {
+        const detailRow = tr.nextElementSibling;
+        const patch = getEditableDetailPatchFromDetailRow(detailRow);
+        if (!patch) return baseNext;
+        let merged = normalizeCompanyRow({ ...baseNext, ...patch });
+        const requestFile = detailRow.querySelector('[data-detail-file="request"]')?.files?.[0];
+        if (requestFile) {
+            showSavingNotice('채용요청서를 200KB 미만으로 압축/업로드 중입니다...');
+            const prevPath = (tr.__companyRow || {}).requestFilePath || '';
+            Object.assign(merged, await uploadRequestFile(requestFile, tr.dataset.id, prevPath));
+        }
+        return merged;
+    }
+
     async function saveEditedCompanyRow(button) {
         if (!hasAdminPermission()) return;
         const tr = button.closest('tr');
-        const next = normalizeCompanyRow({ ...(tr.__companyRow || {}), ...getEditedCompanyRowData(tr) });
+        let next = normalizeCompanyRow({ ...(tr.__companyRow || {}), ...getEditedCompanyRowData(tr) });
 
         const status = document.getElementById('uploadStatus');
-        showSavingNotice();
+        showSavingNotice('저장하는 중입니다...');
         button.disabled = true;
         try {
+            next = await mergeOpenDetailRowIntoNormalizedCompany(tr, next);
+            showSavingNotice('Supabase에 반영하는 중입니다...');
             await updateCompanyInSupabase(tr.dataset.id, next);
             await loadCompanies();
             document.getElementById('companyTable')?.classList.remove('row-editing');
@@ -2020,6 +2210,12 @@
 
     function cancelCompanyRowEdit(button) {
         const tr = button.closest('tr');
+        const detail = tr.nextElementSibling;
+        if (detail?.classList.contains('company-detail-row')) {
+            detail.remove();
+            tr.classList.remove('detail-open');
+            updateExpiredOverlayWidth(tr);
+        }
         const original = JSON.parse(tr.dataset.originalRow || '{}');
         updateCompanyRow(tr, { ...original, id: tr.dataset.id });
         document.getElementById('companyTable')?.classList.remove('row-editing');
@@ -2045,7 +2241,6 @@
         const detailRow = document.createElement('tr');
         detailRow.className = 'company-detail-row';
         tr.classList.add('detail-open');
-        const hiddenAdminClass = isAdminMode ? '' : 'hidden';
         const homepageLinkControl = renderHomepageLink(row.homepageUrl);
         const requestFileViewControl = renderRequestFileLink(row.requestFileUrl);
         const homepageControl = isAdminMode
@@ -2122,9 +2317,6 @@
                             <label>특이사항</label>
                             ${notesControl}
                         </div>
-                    </div>
-                    <div class="inline-detail-actions admin-only ${hiddenAdminClass}">
-                        <button class="primary-button" type="button" onclick="saveInlineCompanyDetail(this)">상세 저장</button>
                     </div>
                 </div>
             </td>
@@ -2345,48 +2537,6 @@
         if (mimeType === 'image/jpeg') return '.jpg';
         if (mimeType === 'image/png') return '.png';
         return '.bin';
-    }
-
-    async function saveInlineCompanyDetail(button) {
-        if (!hasAdminPermission()) return;
-        const detailRow = button.closest('.company-detail-row');
-        const dataRow = detailRow?.previousElementSibling;
-        if (!dataRow) return;
-        const original = dataRow.__companyRow || getCompanyRowData(dataRow);
-        const next = normalizeCompanyRow({
-            ...original,
-            homepageUrl: detailRow.querySelector('[data-detail-field="homepageUrl"]').value,
-            documents: detailRow.querySelector('[data-detail-field="documents"]').value,
-            officer: detailRow.querySelector('[data-detail-field="officer"]').value,
-            documentDate: detailRow.querySelector('[data-detail-field="documentDate"]').value,
-            aptitudeDate: detailRow.querySelector('[data-detail-field="aptitudeDate"]').value,
-            interviewDate: detailRow.querySelector('[data-detail-field="interviewDate"]').value,
-            notes: detailRow.querySelector('[data-detail-field="notes"]').value
-        });
-        const status = document.getElementById('uploadStatus');
-
-        showSavingNotice('상세 항목을 저장하는 중입니다...');
-        button.disabled = true;
-        try {
-            const requestFile = detailRow.querySelector('[data-detail-file="request"]')?.files?.[0];
-            if (requestFile) {
-                showSavingNotice('채용요청서를 200KB 미만으로 압축/업로드 중입니다...');
-                Object.assign(next, await uploadRequestFile(requestFile, dataRow.dataset.id, original.requestFilePath));
-            }
-            showSavingNotice('상세 항목을 Supabase에 저장하는 중입니다...');
-            await updateCompanyInSupabase(dataRow.dataset.id, next);
-            detailRow.remove();
-            await loadCompanies();
-            status.textContent = '상세 항목이 저장되었습니다.';
-        } catch (error) {
-            console.error(error);
-            const message = getErrorMessage(error) || '상세 항목을 저장하지 못했습니다.';
-            status.textContent = message;
-            alert(message);
-            button.disabled = false;
-        } finally {
-            hideSavingNotice();
-        }
     }
 
     function getCompanyFieldDefs() {
