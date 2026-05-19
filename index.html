@@ -46,12 +46,49 @@
 
         .header-row h2 {
             margin-bottom: 0;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .expired-view-button {
+            border: 0;
+            border-radius: 6px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-weight: 700;
+            background: #e2e8f0;
+            color: #334155;
+            white-space: nowrap;
+        }
+
+        .expired-view-button:hover {
+            background: #cbd5e1;
+        }
+
+        .expired-view-button.active {
+            background: #64748b;
+            color: #fff;
+        }
+
+        .expired-view-button.active:hover {
+            background: #475569;
         }
 
         .dashboard-title {
             cursor: pointer;
             user-select: none;
             font-size: calc(1.5em - 3px);
+        }
+
+        .dashboard-title-short {
+            display: none;
         }
 
         /* 필터 영역 */
@@ -327,6 +364,7 @@
 
         #companyTable tbody tr.deadline-expired:not(.detail-open) td.expired-overlay-anchor {
             position: relative;
+            overflow: visible;
         }
 
         #companyTable tbody tr.deadline-expired:not(.detail-open) td.expired-overlay-anchor::after {
@@ -334,12 +372,13 @@
             position: absolute;
             z-index: 5;
             top: 0;
-            left: 0;
+            left: calc(-1 * var(--expired-overlay-offset, 0px));
             display: flex;
             align-items: center;
             justify-content: center;
             width: var(--expired-overlay-width, 100%);
             height: 100%;
+            min-height: 100%;
             background: rgba(148, 163, 184, 0.42);
             color: rgba(220, 38, 38, 0.72);
             font-size: 1.05em;
@@ -347,6 +386,7 @@
             letter-spacing: 0.08em;
             pointer-events: none;
             white-space: nowrap;
+            box-sizing: border-box;
         }
 
         .deadline-cell {
@@ -1045,6 +1085,14 @@
                 grid-column: 1;
             }
 
+            .dashboard-title-full {
+                display: none;
+            }
+
+            .dashboard-title-short {
+                display: inline;
+            }
+
             .inline-detail-header {
                 align-items: flex-start;
                 flex-direction: column;
@@ -1076,8 +1124,14 @@
 
 <div class="container">
     <div class="header-row">
-        <h2 class="dashboard-title" id="dashboardTitle" title="관리자 모드">🏢 기업 채용 정보 관리 대시보드</h2>
-        <button class="primary-button admin-only hidden" type="button" onclick="toggleAiCompanyPanel()">AI기업추가</button>
+        <h2 class="dashboard-title" id="dashboardTitle" title="관리자 모드">
+            <span class="dashboard-title-full">🏢 기업 채용 정보 관리 대시보드</span>
+            <span class="dashboard-title-short">🏢 기업 채용 정보</span>
+        </h2>
+        <div class="header-actions">
+            <button class="expired-view-button" id="expiredCompaniesBtn" type="button" onclick="toggleExpiredCompaniesView()" aria-pressed="false" title="제출기한이 만료된 기업만 보기">마감기업</button>
+            <button class="primary-button admin-only hidden" type="button" onclick="toggleAiCompanyPanel()">AI기업추가</button>
+        </div>
     </div>
 
     <div class="upload-section hidden" id="aiCompanyPanel">
@@ -1114,6 +1168,7 @@
                 <option value="military">병역특례</option>
                 <option value="workType">근무형태</option>
                 <option value="series">계열</option>
+                <option value="submissionDeadline">제출기한</option>
             </select>
         </div>
         <div class="filter-group">
@@ -1230,6 +1285,7 @@
         workType: [],
         series: []
     };
+    let showExpiredCompaniesOnly = false;
 
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('dashboardTitle')?.addEventListener('click', handleAdminTitleClick);
@@ -1238,7 +1294,7 @@
         loadCompanies();
         window.addEventListener('resize', () => {
             fitCompanyNameButtons();
-            document.querySelectorAll('#companyTable tbody tr.deadline-expired').forEach(updateExpiredOverlayWidth);
+            refreshAllExpiredRowOverlays();
             document.querySelectorAll('.company-detail-row').forEach(syncInlineDetailFieldHeights);
         });
     });
@@ -1301,7 +1357,7 @@
             element.classList.toggle('hidden', !isAdminMode);
         });
         document.querySelectorAll('#companyTable tbody tr').forEach((row) => {
-            setExpiredOverlayAnchor(row);
+            applyExpiredRowOverlay(row);
             updateExpiredOverlayWidth(row);
         });
         if (!isAdminMode) {
@@ -1811,12 +1867,66 @@
         const valueSelect = document.getElementById('filterValue');
         if (!fieldSelect || !valueSelect) return;
         const field = fieldSelect.value;
-        const values = field ? (filterOptionValues[field] || []) : [];
         const selected = valueSelect.value;
+
+        if (field === 'submissionDeadline') {
+            valueSelect.disabled = false;
+            const sortOptions = [
+                { value: '', label: '전체' },
+                { value: 'asc', label: '오름차순' },
+                { value: 'desc', label: '내림차순' }
+            ];
+            valueSelect.innerHTML = sortOptions
+                .map((option) => `<option value="${escapeAttr(option.value)}">${escapeHtml(option.label)}</option>`)
+                .join('');
+            valueSelect.value = sortOptions.some((option) => option.value === selected) ? selected : '';
+            return;
+        }
+
+        const values = field ? (filterOptionValues[field] || []) : [];
         valueSelect.disabled = !field;
         valueSelect.innerHTML = '<option value="">전체</option>'
             + values.map((value) => `<option value="${escapeAttr(value)}">${escapeHtml(value)}</option>`).join('');
         valueSelect.value = values.includes(selected) ? selected : '';
+    }
+
+    function compareSubmissionDeadlineRows(rowA, rowB, direction) {
+        const dateA = parseKoreanDate(rowA?.submissionDeadline);
+        const dateB = parseKoreanDate(rowB?.submissionDeadline);
+        const timeA = dateA ? dateA.getTime() : null;
+        const timeB = dateB ? dateB.getTime() : null;
+        if (timeA === null && timeB === null) return 0;
+        if (timeA === null) return 1;
+        if (timeB === null) return -1;
+        return direction === 'asc' ? timeA - timeB : timeB - timeA;
+    }
+
+    function isCompanyDataRowVisible(tr, keywordInput, filterField, filterValue) {
+        const cells = tr.getElementsByTagName('td');
+        if (cells.length < COMPANY_COLUMNS.length) return false;
+        const row = tr.__companyRow || {};
+        const offset = cells[0]?.classList.contains('admin-only') ? 1 : 0;
+        const cellText = (index) => cells[index + offset]?.textContent || '';
+        const tdName = cellText(0).toLowerCase();
+        const tdLocation = cellText(2).toLowerCase();
+        const tdType = row.type || cellText(4);
+        const tdDormitory = row.dormitory || cellText(7);
+        const tdMilitary = row.military || cellText(8);
+        const tdWorkType = cellText(9);
+        const tdSeries = row.series || cellText(11);
+        const tdJob = cellText(12).toLowerCase();
+        const combinedSearchText = `${tdName} ${tdLocation} ${tdJob}`;
+
+        const matchKeyword = keywordInput === '' || combinedSearchText.includes(keywordInput);
+        const matchSelectedFilter = matchesSelectedFilter(filterField, filterValue, {
+            type: tdType,
+            dormitory: tdDormitory,
+            military: tdMilitary,
+            workType: tdWorkType,
+            series: tdSeries
+        });
+        const matchDeadline = matchesDeadlineView(row);
+        return matchKeyword && matchSelectedFilter && matchDeadline;
     }
 
     function setDatalistOptions(datalistId, values) {
@@ -1860,8 +1970,7 @@
             <td>${escapeHtml(row.job)}</td>
             <td>${escapeHtml(row.headcount)}</td>
         `;
-        setExpiredOverlayAnchor(tr);
-        requestAnimationFrame(() => updateExpiredOverlayWidth(tr));
+        applyExpiredRowOverlay(tr);
         requestAnimationFrame(() => fitCompanyNameButton(tr.querySelector('.company-name-button')));
     }
 
@@ -1954,20 +2063,41 @@
         if (store) store.value = formatted;
     }
 
-    function updateExpiredOverlayWidth(tr) {
-        if (!tr?.classList?.contains('deadline-expired')) return;
-        tr.style.setProperty('--expired-overlay-width', `${tr.getBoundingClientRect().width}px`);
-    }
-
     function setExpiredOverlayAnchor(tr) {
         if (!tr || tr.classList.contains('company-detail-row')) return;
         const cells = Array.from(tr.children);
-        cells.forEach((cell) => cell.classList.remove('expired-overlay-anchor'));
+        cells.forEach((cell) => cell.classList.remove('expired-overlay-anchor', 'expired-overlay-cell', 'expired-overlay-label'));
+        if (!tr.classList.contains('deadline-expired') || tr.classList.contains('detail-open')) return;
         const hasAdminCell = cells[0]?.classList.contains('admin-only');
         const anchor = isAdminMode && hasAdminCell && !cells[0].classList.contains('hidden')
             ? cells[0]
             : cells[hasAdminCell ? 1 : 0];
         anchor?.classList.add('expired-overlay-anchor');
+    }
+
+    function updateExpiredOverlayWidth(tr) {
+        if (!tr?.classList?.contains('deadline-expired')) return;
+        const anchor = tr.querySelector('.expired-overlay-anchor');
+        if (!anchor) {
+            setExpiredOverlayAnchor(tr);
+            return updateExpiredOverlayWidth(tr);
+        }
+        const rowRect = tr.getBoundingClientRect();
+        const anchorRect = anchor.getBoundingClientRect();
+        tr.style.setProperty('--expired-overlay-width', `${Math.ceil(rowRect.width)}px`);
+        tr.style.setProperty('--expired-overlay-offset', `${Math.ceil(anchorRect.left - rowRect.left)}px`);
+    }
+
+    function applyExpiredRowOverlay(tr) {
+        setExpiredOverlayAnchor(tr);
+        updateExpiredOverlayWidth(tr);
+    }
+
+    function refreshAllExpiredRowOverlays() {
+        document.querySelectorAll('#companyTable tbody tr.deadline-expired').forEach((tr) => {
+            setExpiredOverlayAnchor(tr);
+            updateExpiredOverlayWidth(tr);
+        });
     }
 
     function normalizeExistingRows() {
@@ -1979,7 +2109,7 @@
                 tr.prepend(td);
             }
             tr.children[0]?.classList.toggle('hidden', !isAdminMode);
-            setExpiredOverlayAnchor(tr);
+            applyExpiredRowOverlay(tr);
         });
     }
 
@@ -2641,49 +2771,79 @@
         return message;
     }
 
+    function toggleExpiredCompaniesView() {
+        showExpiredCompaniesOnly = !showExpiredCompaniesOnly;
+        updateExpiredCompaniesButton();
+        document.querySelectorAll('.company-detail-row').forEach((row) => row.remove());
+        document.querySelectorAll('#companyTable tbody tr.detail-open').forEach((row) => {
+            row.classList.remove('detail-open');
+            updateExpiredOverlayWidth(row);
+        });
+        filterTable();
+    }
+
+    function updateExpiredCompaniesButton() {
+        const button = document.getElementById('expiredCompaniesBtn');
+        if (!button) return;
+        button.classList.toggle('active', showExpiredCompaniesOnly);
+        button.setAttribute('aria-pressed', showExpiredCompaniesOnly ? 'true' : 'false');
+        button.textContent = showExpiredCompaniesOnly ? '진행중 기업' : '마감기업';
+        button.title = showExpiredCompaniesOnly
+            ? '제출기한이 남아 있는 기업 보기'
+            : '제출기한이 만료된 기업만 보기';
+    }
+
+    function matchesDeadlineView(row) {
+        const expired = isSubmissionDeadlineExpired(row.submissionDeadline);
+        return showExpiredCompaniesOnly ? expired : !expired;
+    }
+
     function filterTable() {
         const keywordInput = document.getElementById('searchKeyword').value.toLowerCase();
         const filterField = document.getElementById('filterField').value;
         const filterValue = document.getElementById('filterValue').value;
-        
-        const table = document.getElementById('companyTable');
-        const tr = table.getElementsByTagName('tr');
+        const tbody = document.querySelector('#companyTable tbody');
+        if (!tbody) return;
 
-        for (let i = 1; i < tr.length; i++) {
-            const cells = tr[i].getElementsByTagName('td');
-            if (cells.length < COMPANY_COLUMNS.length) continue;
-            const row = tr[i].__companyRow || {};
-            const offset = cells[0]?.classList.contains('admin-only') ? 1 : 0;
-            const cellText = (index) => cells[index + offset]?.textContent || '';
-            const tdName = cellText(0).toLowerCase();
-            const tdLocation = cellText(2).toLowerCase();
-            const tdType = row.type || cellText(4);
-            const tdDormitory = row.dormitory || cellText(7);
-            const tdMilitary = row.military || cellText(8);
-            const tdWorkType = cellText(9);
-            const tdSeries = row.series || cellText(11);
-            const tdJob = cellText(12).toLowerCase();
-            const combinedSearchText = `${tdName} ${tdLocation} ${tdJob}`;
+        const entries = Array.from(tbody.querySelectorAll('tr'))
+            .filter((tr) => !tr.classList.contains('company-detail-row'))
+            .filter((tr) => tr.children.length >= COMPANY_COLUMNS.length)
+            .map((tr) => ({
+                tr,
+                detailRow: tr.nextElementSibling?.classList.contains('company-detail-row')
+                    ? tr.nextElementSibling
+                    : null
+            }));
 
-            const matchKeyword = keywordInput === "" || combinedSearchText.includes(keywordInput);
-            const matchSelectedFilter = matchesSelectedFilter(filterField, filterValue, {
-                type: tdType,
-                dormitory: tdDormitory,
-                military: tdMilitary,
-                workType: tdWorkType,
-                series: tdSeries
+        entries.forEach((entry) => {
+            entry.visible = isCompanyDataRowVisible(entry.tr, keywordInput, filterField, filterValue);
+        });
+
+        const sortDirection = filterField === 'submissionDeadline' && (filterValue === 'asc' || filterValue === 'desc')
+            ? filterValue
+            : '';
+        if (sortDirection) {
+            const visibleEntries = entries.filter((entry) => entry.visible);
+            const hiddenEntries = entries.filter((entry) => !entry.visible);
+            visibleEntries.sort((a, b) => compareSubmissionDeadlineRows(a.tr.__companyRow, b.tr.__companyRow, sortDirection));
+            [...visibleEntries, ...hiddenEntries].forEach((entry) => {
+                tbody.appendChild(entry.tr);
+                if (entry.detailRow) tbody.appendChild(entry.detailRow);
             });
-
-            if (matchKeyword && matchSelectedFilter) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
         }
+
+        entries.forEach((entry) => {
+            entry.tr.style.display = entry.visible ? '' : 'none';
+            if (entry.detailRow) {
+                entry.detailRow.style.display = entry.visible && entry.tr.classList.contains('detail-open') ? '' : 'none';
+            }
+        });
+        refreshAllExpiredRowOverlays();
     }
 
     function matchesSelectedFilter(field, value, rowValues) {
         if (!field || !value) return true;
+        if (field === 'submissionDeadline') return true;
         if (field === 'series') return cleanupField(rowValues.series).includes(value);
         return cleanupField(rowValues[field]) === value;
     }
